@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 21, 2026 at 02:39 AM
+-- Generation Time: Mar 21, 2026 at 07:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,6 +56,7 @@ CREATE TABLE `complaints` (
   `assigned_staff_id` int(11) DEFAULT NULL,
   `subject` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
+  `staff_comment` text DEFAULT NULL,
   `status` enum('pending','in_progress','resolved') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -64,8 +65,8 @@ CREATE TABLE `complaints` (
 -- Dumping data for table `complaints`
 --
 
-INSERT INTO `complaints` (`complaint_id`, `complainant_id`, `assigned_staff_id`, `subject`, `description`, `status`, `created_at`) VALUES
-(1, 2, 4, 'Ace Azcona sa Qith\'s Dorm', 'Banha kaayu sir, permig ungol kag lulu, bahog utot sir kay bulan na way libang2', 'in_progress', '2026-03-07 08:26:30');
+INSERT INTO `complaints` (`complaint_id`, `complainant_id`, `assigned_staff_id`, `subject`, `description`, `staff_comment`, `status`, `created_at`) VALUES
+(1, 2, 4, 'Ace Azcona sa Qith\'s Dorm', 'Banha kaayu sir, permig ungol kag lulu, bahog utot sir kay bulan na way libang2', 'Okay sir, anhaon namo sha later and discuss the matters, thank you sa pag submit.', 'resolved', '2026-03-07 08:26:30');
 
 -- --------------------------------------------------------
 
@@ -109,7 +110,19 @@ INSERT INTO `logs` (`log_id`, `user_id`, `action`, `log_time`) VALUES
 (22, 1, 'Assigned staff to complaint ID 1', '2026-03-07 08:30:10'),
 (23, 1, 'Assigned staff to complaint ID 1', '2026-03-07 08:30:51'),
 (24, 4, 'Logged in successfully with 2FA', '2026-03-07 08:32:40'),
-(25, 2, 'Logged in successfully with 2FA', '2026-03-07 08:34:24');
+(25, 2, 'Logged in successfully with 2FA', '2026-03-07 08:34:24'),
+(26, 1, 'Logged in successfully with 2FA', '2026-03-21 04:36:17'),
+(27, 1, 'Logged in successfully with 2FA', '2026-03-21 05:15:30'),
+(28, 4, 'Logged in successfully with 2FA', '2026-03-21 05:17:22'),
+(29, 2, 'Logged in successfully with 2FA', '2026-03-21 05:20:00'),
+(30, 1, 'Logged in successfully with 2FA', '2026-03-21 05:31:27'),
+(31, 1, 'Assigned staff to complaint ID 1', '2026-03-21 05:31:39'),
+(32, 4, 'Logged in successfully with 2FA', '2026-03-21 06:04:04'),
+(33, 4, 'Resolved complaint ID 1 with comment', '2026-03-21 06:12:06'),
+(34, 2, 'Logged in successfully with 2FA', '2026-03-21 06:12:51'),
+(35, 4, 'Logged in successfully with 2FA', '2026-03-21 06:18:24'),
+(36, 2, 'Logged in successfully with 2FA', '2026-03-21 06:19:19'),
+(37, 1, 'Logged in successfully with 2FA', '2026-03-21 06:25:23');
 
 -- --------------------------------------------------------
 
@@ -136,10 +149,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password`, `role`, `residency_status`, `account_status`, `otp_code`, `otp_expiry`, `created_at`) VALUES
-(1, 'System', 'Administrator', 'admin@barangay.com', '$2y$10$KAMo90XDjDfAEszw8.6BAOZrFGgmH1vli0LZvHRmcyH.WZuDj2F0m', 'admin', 'verified', 'approved', '105834', '2026-03-20 14:42:34', '2026-03-06 06:33:01'),
-(2, 'Rj', 'Rj', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'verified', 'approved', '642583', '2026-03-07 09:38:50', '2026-03-07 06:42:51'),
+(1, 'System', 'Administrator', 'admin@barangay.com', '$2y$10$KAMo90XDjDfAEszw8.6BAOZrFGgmH1vli0LZvHRmcyH.WZuDj2F0m', 'admin', 'verified', 'approved', '308852', '2026-03-21 07:29:58', '2026-03-06 06:33:01'),
+(2, 'Rj', 'Rj', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'verified', 'approved', '644411', '2026-03-21 07:24:03', '2026-03-07 06:42:51'),
 (3, 'Venzoy', 'Venzoy', 'rjdy2003@gmail.com', '$2y$10$d78SDT.KXvVGq70bcfzZL.sWZktYcaKsIB7Kn09zE2jPEs31zvurO', 'staff', 'pending', 'rejected', NULL, NULL, '2026-03-07 07:06:48'),
-(4, 'Arjay', 'Arjay', 'johniedy2003@gmail.com', '$2y$10$mYGv6VLR9RNtwPQ1skPU4OrS.X/rusYksyQGbxqIPMNs7t8zaaCqy', 'staff', 'verified', 'approved', '779492', '2026-03-07 09:37:22', '2026-03-07 07:28:26');
+(4, 'Arjay', 'Arjay', 'johniedy2003@gmail.com', '$2y$10$mYGv6VLR9RNtwPQ1skPU4OrS.X/rusYksyQGbxqIPMNs7t8zaaCqy', 'staff', 'verified', 'approved', '961051', '2026-03-21 07:23:03', '2026-03-07 07:28:26');
 
 --
 -- Indexes for dumped tables
@@ -194,7 +207,7 @@ ALTER TABLE `complaints`
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `users`
