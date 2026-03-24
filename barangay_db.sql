@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2026 at 04:56 PM
+-- Generation Time: Mar 24, 2026 at 03:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,7 +42,8 @@ CREATE TABLE `appointments` (
 INSERT INTO `appointments` (`appointment_id`, `user_id`, `appointment_date`, `purpose`, `status`) VALUES
 (1, 3, '2026-03-07 15:10:00', 'Barangay Residency Verification', 'scheduled'),
 (2, 4, '2026-03-07 15:30:00', 'Barangay Residency Verification', 'scheduled'),
-(3, 4, '2026-03-07 15:30:00', 'Barangay Residency Verification', 'scheduled');
+(3, 4, '2026-03-07 15:30:00', 'Barangay Residency Verification', 'scheduled'),
+(4, 5, '2026-03-24 20:43:00', 'Barangay Residency Verification', 'scheduled');
 
 -- --------------------------------------------------------
 
@@ -69,6 +70,29 @@ INSERT INTO `complaints` (`complaint_id`, `complainant_id`, `assigned_staff_id`,
 (1, 2, 4, 'Ace Azcona sa Qith\'s Dorm', 'Banha kaayu sir, permig ungol kag lulu, bahog utot sir kay bulan na way libang2', 'Okay sir, anhaon namo sha later and discuss the matters, thank you sa pag submit.', 'Resolved', '2026-03-07 08:26:30'),
 (2, 2, NULL, 'Rode', 'sigeg tagay banha kaayu rba sir tas wa nay limpyo iyang lote hugaw way panilhig', NULL, 'Pending', '2026-03-22 05:38:11'),
 (3, 2, NULL, 'LJ Saavedra', 'Sag asa mo butang basiwa sa coke daghan nag case diri nanga tibulaag kay sag asa ra neya e butang, sahay sa dalan pana.', NULL, 'Pending', '2026-03-22 15:35:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `developer_profile`
+--
+
+CREATE TABLE `developer_profile` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `about` text DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `developer_profile`
+--
+
+INSERT INTO `developer_profile` (`id`, `name`, `email`, `address`, `about`, `image`) VALUES
+(1, 'Johnie Niel Derubio', 'johniedy2003@gmail.com', 'Aguada, Recto St. Ozamiz City', 'Continue studying in BS information Technology at Northwestern Mindanao State College of Science and Technology', 'dev.png'),
+(2, 'Johnie Niel Derubio', 'johniedy2003@gmail.com', 'Aguada, Recto St. Ozamiz City', 'Continue studying in BS information Technology at Northwestern Mindanao State College of Science and Technology', 'dev.png');
 
 -- --------------------------------------------------------
 
@@ -134,7 +158,15 @@ INSERT INTO `logs` (`log_id`, `user_id`, `action`, `log_time`) VALUES
 (44, 2, 'Created a complaint', '2026-03-22 05:38:11'),
 (45, 2, 'Logged in successfully with 2FA', '2026-03-22 15:34:37'),
 (46, 2, 'Created a complaint', '2026-03-22 15:35:56'),
-(47, 1, 'Logged in successfully with 2FA', '2026-03-22 15:41:34');
+(47, 1, 'Logged in successfully with 2FA', '2026-03-22 15:41:34'),
+(48, 1, 'Logged in successfully with 2FA', '2026-03-24 12:39:33'),
+(49, 1, 'Logged in successfully with 2FA', '2026-03-24 12:42:18'),
+(50, 1, 'Scheduled residency appointment for user ID 5', '2026-03-24 12:42:53'),
+(51, 1, 'Rejected user ID 5', '2026-03-24 12:43:19'),
+(52, 1, 'Logged in successfully with 2FA', '2026-03-24 13:56:14'),
+(53, 2, 'Logged in successfully with 2FA', '2026-03-24 14:49:24'),
+(54, 4, 'Logged in successfully with 2FA', '2026-03-24 14:50:31'),
+(55, 2, 'Logged in successfully with 2FA', '2026-03-24 14:52:31');
 
 -- --------------------------------------------------------
 
@@ -153,19 +185,30 @@ CREATE TABLE `users` (
   `account_status` enum('pending','approved','rejected') DEFAULT 'pending',
   `otp_code` varchar(6) DEFAULT NULL,
   `otp_expiry` datetime DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `email_verified` tinyint(1) DEFAULT 0,
+  `verification_token` varchar(255) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_expiry` datetime DEFAULT NULL,
+  `profile_image` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `about` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password`, `role`, `residency_status`, `account_status`, `otp_code`, `otp_expiry`, `created_at`) VALUES
-(1, 'System', 'Administrator', 'admin@barangay.com', '$2y$10$KAMo90XDjDfAEszw8.6BAOZrFGgmH1vli0LZvHRmcyH.WZuDj2F0m', 'admin', 'verified', 'approved', '246481', '2026-03-22 16:46:03', '2026-03-06 06:33:01'),
-(2, 'Rj', 'Rj', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'verified', 'approved', '570021', '2026-03-22 16:39:19', '2026-03-07 06:42:51'),
-(3, 'Venzoy', 'Venzoy', 'rjdy2003@gmail.com', '$2y$10$d78SDT.KXvVGq70bcfzZL.sWZktYcaKsIB7Kn09zE2jPEs31zvurO', 'staff', 'pending', 'rejected', NULL, NULL, '2026-03-07 07:06:48'),
-(4, 'Arjay', 'Arjay', 'johniedy2003@gmail.com', '$2y$10$mYGv6VLR9RNtwPQ1skPU4OrS.X/rusYksyQGbxqIPMNs7t8zaaCqy', 'staff', 'verified', 'approved', '961051', '2026-03-21 07:23:03', '2026-03-07 07:28:26'),
-(5, 'Jonah', 'Derubio', 'jonahdyderubio@gmail.com', '$2y$10$VNHK0YldHmZhc0Cl3DaeguLcFP2YRWZ89eozeFXU/d3VWg12s.qey', 'complainant', 'pending', 'pending', NULL, NULL, '2026-03-22 04:57:50');
+INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password`, `role`, `residency_status`, `account_status`, `otp_code`, `otp_expiry`, `created_at`, `email_verified`, `verification_token`, `reset_token`, `reset_expiry`, `profile_image`, `address`, `phone`, `about`) VALUES
+(1, 'System', 'Administrator', 'admin@barangay.com', '$2y$10$KAMo90XDjDfAEszw8.6BAOZrFGgmH1vli0LZvHRmcyH.WZuDj2F0m', 'admin', 'verified', 'approved', '533915', '2026-03-24 15:00:22', '2026-03-06 06:33:01', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'Rj', 'Rj', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'verified', 'approved', '377311', '2026-03-24 15:57:13', '2026-03-07 06:42:51', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'Venzoy', 'Venzoy', 'rjdy2003@gmail.com', '$2y$10$d78SDT.KXvVGq70bcfzZL.sWZktYcaKsIB7Kn09zE2jPEs31zvurO', 'staff', 'pending', 'rejected', NULL, NULL, '2026-03-07 07:06:48', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 'Arjay', 'Arjay', 'johniedy2003@gmail.com', '$2y$10$mYGv6VLR9RNtwPQ1skPU4OrS.X/rusYksyQGbxqIPMNs7t8zaaCqy', 'staff', 'verified', 'approved', '469015', '2026-03-24 15:55:12', '2026-03-07 07:28:26', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, 'Jonah', 'Derubio', 'jonahdyderubio@gmail.com', '$2y$10$VNHK0YldHmZhc0Cl3DaeguLcFP2YRWZ89eozeFXU/d3VWg12s.qey', 'complainant', 'pending', 'rejected', NULL, NULL, '2026-03-22 04:57:50', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 'Louie Jay', 'Fortuna', 'louiejay.fortuna@nmsc.edu.ph', '$2y$10$etUiq6u0iEJvjAfjqfPnduAgPa63UdNtIpITwMyVE9u4rsb5nZUVy', 'complainant', 'pending', 'pending', NULL, NULL, '2026-03-24 12:02:20', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, 'Neil Martin', 'Molina', 'neilmartin.molina@nmsc.edu.ph', '$2y$10$RwprlWHigUmRjXtwc1LKcu65BMU4EGxEqzI68RZPkO2F9/DmV37yC', 'complainant', 'pending', 'pending', NULL, NULL, '2026-03-24 12:53:12', 0, '416eb5ba3a87fb2469396648494e7064', NULL, NULL, NULL, NULL, NULL, NULL),
+(8, 'Argy', 'Derubio', 'derubiojohnie@gmail.com', '$2y$10$QcySt4FZZScXMP0u8GBCZeT0zLd6iL.9eUYE6oV5dPsjN/B7nIo6W', 'staff', 'pending', 'pending', NULL, NULL, '2026-03-24 13:17:41', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -185,6 +228,12 @@ ALTER TABLE `complaints`
   ADD PRIMARY KEY (`complaint_id`),
   ADD KEY `complainant_id` (`complainant_id`),
   ADD KEY `assigned_staff_id` (`assigned_staff_id`);
+
+--
+-- Indexes for table `developer_profile`
+--
+ALTER TABLE `developer_profile`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `logs`
@@ -208,7 +257,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `complaints`
@@ -217,16 +266,22 @@ ALTER TABLE `complaints`
   MODIFY `complaint_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `developer_profile`
+--
+ALTER TABLE `developer_profile`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables

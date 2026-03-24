@@ -26,6 +26,10 @@ session_start();
     </form>
 
     <div class="link">
+    <a href="forgot_password.php">Forgot Password?</a>
+    </div>
+    
+    <div class="link">
         <a href="register.php">Create an account</a>
     </div>
 </div>
@@ -36,7 +40,7 @@ session_start();
 <?php
 if(isset($_POST['login'])){
 
-    $email = $_POST['email'];
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = $_POST['password'];
 
     $query = mysqli_query($conn, "SELECT * FROM users WHERE email='$email'");
@@ -44,6 +48,13 @@ if(isset($_POST['login'])){
 
     if($user && password_verify($password, $user['password'])){
 
+        // 🔴 CHECK EMAIL VERIFIED
+        if($user['email_verified'] == 0){
+            echo "<script>alert('Please verify your email first!');</script>";
+            exit();
+        }
+
+        // 🔴 CHECK ADMIN APPROVAL
         if($user['account_status'] != 'approved'){
             echo "<script>alert('Account not approved by admin yet.');</script>";
             exit();

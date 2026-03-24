@@ -3,6 +3,7 @@
 
     <?php if($_SESSION['role'] == 'admin'): ?>
 
+        <li><a href="../admin/profile.php">My Profile</a></li>
         <a href="../admin/dashboard.php">Dashboard</a>
         <a href="../admin/manage_users.php">Manage Users</a>
         <a href="../admin/manage_complaints.php">Manage Complaints</a>
@@ -10,11 +11,13 @@
 
     <?php elseif($_SESSION['role'] == 'staff'): ?>
 
+        <li><a href="../staff/profile.php">My Profile</a></li>
         <a href="../staff/dashboard.php">Dashboard</a>
         <a href="../staff/view_complaints.php">View Complaints</a>
 
     <?php else: ?>
 
+        <li><a href="../complainant/profile.php">My Profile</a></li>
         <a href="../complainant/dashboard.php">Dashboard</a>
         <a href="../complainant/create_complaint.php">Submit Complaint</a>
         <a href="../complainant/my_complaints.php">My Complaints</a>
