@@ -29,6 +29,10 @@ switch ($_SESSION['role']) {
     case 'complainant':
         header("Location: complainant/dashboard.php");
         break;
+    
+    case 'superadmin':
+        header("Location: superadmin/dashboard.php");
+        break;
 
     default:
         // Unknown role → logout for safety
