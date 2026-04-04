@@ -1,11 +1,14 @@
 <?php
 session_start();
-include('../config/database.php');
 
-if($_SESSION['role'] != 'superadmin'){
+if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'superadmin'){
     header("Location: ../auth/login.php");
     exit();
 }
+
+include('../config/database.php');
+include('../includes/header.php');
+include('../includes/sidebar.php');
 
 if(isset($_POST['add'])){
 
@@ -17,6 +20,20 @@ if(isset($_POST['add'])){
     mysqli_query($conn,
     "INSERT INTO users (firstname, lastname, email, password, role, account_status)
      VALUES ('$fname','$lname','$email','$password','admin','approved')");
+
+    $user_id = mysqli_insert_id($conn);
+
+    mysqli_query($conn,
+    "INSERT INTO user_auth (user_id, email_verified)
+     VALUES ('$user_id',1)");
+
+    mysqli_query($conn,
+    "INSERT INTO user_profiles (user_id)
+     VALUES ('$user_id')");
+
+    mysqli_query($conn,
+    "INSERT INTO residency (user_id, status)
+     VALUES ('$user_id','verified')");
 
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)
@@ -36,3 +53,5 @@ if(isset($_POST['add'])){
 
 <button name="add">Create Admin</button>
 </form>
+
+<?php include('../includes/footer.php'); ?>

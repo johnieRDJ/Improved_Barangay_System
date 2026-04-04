@@ -2,15 +2,25 @@
 session_start();
 include('../config/database.php');
 
-if($_SESSION['role'] != 'admin'){
+if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin'){
     header("Location: ../auth/login.php");
     exit();
 }
 
-$id = $_GET['id'];
+$id = intval($_GET['id']);
 
 $user = mysqli_fetch_assoc(mysqli_query($conn,
 "SELECT * FROM users WHERE user_id='$id'"));
+
+if(!$user){
+    header("Location: manage_users.php");
+    exit();
+}
+
+if($user['role'] == 'superadmin'){
+    echo "<script>alert('Superadmin account is protected.'); window.location='manage_users.php';</script>";
+    exit();
+}
 
 if(isset($_POST['update'])){
 
@@ -25,7 +35,16 @@ if(isset($_POST['update'])){
      lastname='$lname',
      email='$email',
      account_status='$status'
-     WHERE user_id='$id'");
+     WHERE user_id='$id' AND role!='superadmin'");
+
+    if($status == 'approved'){
+        mysqli_query($conn,
+        "INSERT INTO residency (user_id, status)
+         SELECT '$id', 'pending'
+         WHERE NOT EXISTS (
+             SELECT 1 FROM residency WHERE user_id='$id'
+         )");
+    }
 
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)

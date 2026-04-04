@@ -1,6 +1,6 @@
 <?php
-include('../includes/header.php');
 session_start();
+include('../includes/header.php');
 
 if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'staff'){
     header("Location: ../auth/login.php");
@@ -31,28 +31,32 @@ $resolved = mysqli_fetch_assoc(mysqli_query($conn,
  AND status='resolved'"))['total'];
 ?>
 
-<h1>Staff Dashboard</h1>
+<div class="dashboard-wrapper page-shell">
 
-<p>View and update assigned complaints here.</p>
-
-<div class="cards">
-
-    <div class="card">
-        <h3><?php echo $total_assigned; ?></h3>
-        <p>Total Assigned</p>
+    <div class="dashboard-header">
+        <h1>Staff Dashboard</h1>
+        <p>View and update assigned complaints here.</p>
     </div>
 
-    <div class="card">
-        <h3><?php echo $in_progress; ?></h3>
-        <p>In Progress</p>
-    </div>
+    <div class="stats-grid">
 
-    <div class="card">
-        <h3><?php echo $resolved; ?></h3>
-        <p>Resolved</p>
+        <div class="stat-card">
+            <h3><?php echo $total_assigned; ?></h3>
+            <p>Total Assigned</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $in_progress; ?></h3>
+            <p>In Progress</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $resolved; ?></h3>
+            <p>Resolved</p>
+        </div>
+
     </div>
 
 </div>
 
-<a href="../auth/logout.php">Logout</a>
 <?php include('../includes/footer.php'); ?>

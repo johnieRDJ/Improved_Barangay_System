@@ -1,6 +1,6 @@
 <?php
-include('../includes/header.php');
 session_start();
+include('../includes/header.php');
 
 if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'complainant'){
     header("Location: ../auth/login.php");
@@ -27,28 +27,32 @@ $resolved = mysqli_fetch_assoc(mysqli_query($conn,
 
 ?>
 
-<h1>Complainant Dashboard</h1>
+<div class="dashboard-wrapper page-shell">
 
-<p>Submit and track your complaints here.</p>>
-
-<div class="cards">
-
-    <div class="card">
-        <h3><?php echo $total; ?></h3>
-        <p>My Total Complaints</p>
+    <div class="dashboard-header">
+        <h1>Complainant Dashboard</h1>
+        <p>Submit and track your complaints here.</p>
     </div>
 
-    <div class="card">
-        <h3><?php echo $pending; ?></h3>
-        <p>Pending</p>
-    </div>
+    <div class="stats-grid">
 
-    <div class="card">
-        <h3><?php echo $resolved; ?></h3>
-        <p>Resolved</p>
+        <div class="stat-card">
+            <h3><?php echo $total; ?></h3>
+            <p>My Total Complaints</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $pending; ?></h3>
+            <p>Pending</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $resolved; ?></h3>
+            <p>Resolved</p>
+        </div>
+
     </div>
 
 </div>
 
-<a href="../auth/logout.php">Logout</a>
 <?php include('../includes/footer.php'); ?>

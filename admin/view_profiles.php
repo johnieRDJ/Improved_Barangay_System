@@ -1,13 +1,14 @@
 <?php
 session_start();
-include('../config/database.php');
-include('../includes/header.php');
-include('../includes/sidebar.php');
 
 if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin'){
     header("Location: ../auth/login.php");
     exit();
 }
+
+include('../config/database.php');
+include('../includes/header.php');
+include('../includes/sidebar.php');
 
 // ============================
 // 🔍 SEARCH & FILTER
@@ -17,7 +18,18 @@ $role = $_GET['role'] ?? '';
 $status = $_GET['status'] ?? '';
 $residency = $_GET['residency'] ?? '';
 
-$query = "SELECT * FROM users WHERE role != 'admin'";
+$query = "SELECT users.*, 
+                 user_profiles.address,
+                 user_profiles.phone,
+                 user_profiles.about,
+                 user_profiles.profile_image,
+                 residency.status AS residency_status
+          FROM users
+          LEFT JOIN user_profiles
+          ON users.user_id = user_profiles.user_id
+          LEFT JOIN residency
+          ON users.user_id = residency.user_id
+          WHERE role != 'admin'";
 
 // SEARCH
 if($search){
@@ -36,7 +48,11 @@ if($status){
 }
 
 if($residency){
-    $query .= " AND residency_status='$residency'";
+    if($residency == 'none'){
+        $query .= " AND (residency.status='none' OR residency.status IS NULL)";
+    } else {
+        $query .= " AND residency.status='$residency'";
+    }
 }
 
 $result = mysqli_query($conn, $query);

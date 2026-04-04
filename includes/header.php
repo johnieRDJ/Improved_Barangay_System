@@ -13,6 +13,7 @@ if(!isset($_SESSION['user_id'])){
 <html>
 <head>
     <title>Barangay Digital Complaint Desk</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
+    <?php $style_version = filemtime(__DIR__ . '/../css/style.css'); ?>
+    <link rel="stylesheet" href="../css/style.css?v=<?php echo $style_version; ?>">
 </head>
-<body></body>
+<body>

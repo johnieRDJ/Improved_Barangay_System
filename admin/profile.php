@@ -1,15 +1,27 @@
 <?php
 session_start();
-include('../config/database.php');
-include('../includes/header.php');
-include('../includes/sidebar.php');
 
 if(!isset($_SESSION['user_id'])){
     header("Location: ../auth/login.php");
     exit();
 }
 
+include('../config/database.php');
+include('../includes/header.php');
+include('../includes/sidebar.php');
+
 $user_id = $_SESSION['user_id'];
+
+/* ============================
+   ENSURE PROFILE EXISTS
+============================ */
+$check = mysqli_query($conn,
+"SELECT * FROM user_profiles WHERE user_id='$user_id'");
+
+if(mysqli_num_rows($check) == 0){
+    mysqli_query($conn,
+    "INSERT INTO user_profiles (user_id) VALUES ('$user_id')");
+}
 
 /* ============================
    🔴 HANDLE PROFILE UPDATE
@@ -21,7 +33,7 @@ if(isset($_POST['save'])){
     $about = mysqli_real_escape_string($conn, $_POST['about']);
 
     mysqli_query($conn,
-    "UPDATE users 
+    "UPDATE user_profiles 
      SET address='$address',
          phone='$phone',
          about='$about'
@@ -41,7 +53,7 @@ if(isset($_POST['upload'])){
     move_uploaded_file($tmp, $path);
 
     mysqli_query($conn,
-    "UPDATE users SET profile_image='$image'
+    "UPDATE user_profiles SET profile_image='$image'
      WHERE user_id='$user_id'");
 }
 
@@ -51,14 +63,14 @@ if(isset($_POST['upload'])){
 if(isset($_POST['delete'])){
 
     $get = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT profile_image FROM users WHERE user_id='$user_id'"));
+    "SELECT profile_image FROM user_profiles WHERE user_id='$user_id'"));
 
     if($get['profile_image']){
         unlink("../uploads/profile/".$get['profile_image']);
     }
 
     mysqli_query($conn,
-    "UPDATE users SET profile_image=NULL
+    "UPDATE user_profiles SET profile_image=NULL
      WHERE user_id='$user_id'");
 }
 
@@ -66,7 +78,11 @@ if(isset($_POST['delete'])){
    🔴 GET USER DATA
 ============================ */
 $user = mysqli_fetch_assoc(mysqli_query($conn,
-"SELECT * FROM users WHERE user_id='$user_id'"));
+"SELECT u.firstname, u.lastname, u.email,
+        p.address, p.phone, p.about, p.profile_image
+ FROM users u
+ LEFT JOIN user_profiles p ON u.user_id = p.user_id
+ WHERE u.user_id='$user_id'"));
 ?>
 
 <h2>My Profile</h2>

@@ -14,52 +14,29 @@ include('../includes/sidebar.php');
 /* ===============================
    🔴 HANDLE IMAGE UPLOAD
 ================================ */
-if(isset($_POST['upload'])){
-
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $address = $_POST['address'];
-    $about = $_POST['about'];
-
-    $image_name = $_FILES['image']['name'];
-    $tmp = $_FILES['image']['tmp_name'];
-
-    $path = "../uploads/" . $dev;
-
-    move_uploaded_file($tmp, $path);
-
-    // Insert or update (single profile)
-    mysqli_query($conn,
-    "INSERT INTO developer_profile (name,email,address,about,image)
-     VALUES ('$name','$email','$address','$about','$image_name')
-     ON DUPLICATE KEY UPDATE
-     name='$name',
-     email='$email',
-     address='$address',
-     about='$about',
-     image='$image_name'");
-}
+// if(isset($_POST['upload'])){
+//     Developer profile upload is disabled.
+// }
 
 
 /* ===============================
    🔴 HANDLE DELETE IMAGE
 ================================ */
-if(isset($_POST['delete'])){
-
-    $get = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM developer_profile LIMIT 1"));
-
-    if($get && $get['image']){
-        unlink("../uploads/".$get['image']);
-    }
-
-    mysqli_query($conn, "UPDATE developer_profile SET image=NULL");
-}
+// if(isset($_POST['delete'])){
+//     Developer profile delete is disabled.
+// }
 
 
 /* ===============================
    🔴 FETCH DEVELOPER DATA
 ================================ */
-$dev = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM developer_profile LIMIT 1"));
+$dev = [
+    'name' => 'Johnie Niel Derubio',
+    'email' => 'johniedy2003@gmail.com',
+    'address' => 'Aguada, Recto St. Ozamiz City',
+    'about' => 'Continue studying in BS Information Technology at Northwestern Mindanao State College of Science and Technology',
+    'image' => '../uploads/developer.png'
+];
 
 
 
@@ -82,86 +59,66 @@ $resolved_complaints = mysqli_fetch_assoc(mysqli_query($conn,
 "SELECT COUNT(*) as total FROM complaints WHERE status='resolved'"))['total'];
 ?>
 
-<h1>Admin Dashboard</h1>
+<div class="dashboard-wrapper page-shell">
 
-
-<!-- ===============================
-     🔴 DEVELOPER PROFILE SECTION (TOP PART)
-================================ -->
-<div style="border:1px solid #ccc; padding:15px; margin-bottom:20px;">
-
-<h2>Developer Profile</h2>
-
-<?php if($dev && $dev['image']): ?>
-    <img src="../uploads/<?php echo $dev['image']; ?>" width="150"><br><br>
-<?php endif; ?>
-
-<p><strong>Name:</strong> <?php echo $dev['name'] ?? 'N/A'; ?></p>
-<p><strong>Email:</strong> <?php echo $dev['email'] ?? 'N/A'; ?></p>
-<p><strong>Address:</strong> <?php echo $dev['address'] ?? 'N/A'; ?></p>
-<p><strong>About:</strong> <?php echo $dev['about'] ?? 'N/A'; ?></p>
-
-<br>
-
-<!-- 🔴 UPLOAD / UPDATE FORM -->
-<form method="POST" enctype="multipart/form-data">
-
-    <!-- 🔴 YOU CAN EDIT THESE -->
-    <input type="text" name="name" placeholder="Your Name" required><br><br>
-    <input type="email" name="email" placeholder="Your Email" required><br><br>
-    <input type="text" name="address" placeholder="Your Address" required><br><br>
-    <textarea name="about" placeholder="About You" required></textarea><br><br>
-
-    <!-- 🔴 IMAGE INPUT -->
-    <input type="file" name="image" required><br><br>
-
-    <button name="upload">Upload / Save</button>
-
-</form>
-
-<br>
-
-<!-- 🔴 DELETE IMAGE BUTTON -->
-<form method="POST">
-    <button name="delete">Delete Image</button>
-</form>
-
-</div>
-
-
-<!-- ===============================
-     🔴 ORIGINAL DASHBOARD CARDS
-================================ -->
-
-<div class="cards">
-
-    <div class="card">
-        <h3><?php echo $total_users; ?></h3>
-        <p>Total Users</p>
+    <div class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <p>Monitor users, complaints, and overall barangay system activity.</p>
     </div>
 
-    <div class="card">
-        <h3><?php echo $pending_users; ?></h3>
-        <p>Pending Users</p>
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <h3><?php echo $total_users; ?></h3>
+            <p>Total Users</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $pending_users; ?></h3>
+            <p>Pending Users</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $total_complaints; ?></h3>
+            <p>Total Complaints</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $pending_complaints; ?></h3>
+            <p>Pending Complaints</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $resolved_complaints; ?></h3>
+            <p>Resolved Complaints</p>
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3><?php echo $total_complaints; ?></h3>
-        <p>Total Complaints</p>
-    </div>
+    <div class="developer-card">
+        <h2 style="text-align:left; margin-bottom:6px;">Developer Information</h2>
+        <p class="developer-note">This section cannot be modified</p>
 
-    <div class="card">
-        <h3><?php echo $pending_complaints; ?></h3>
-        <p>Pending Complaints</p>
-    </div>
+        <div class="developer-card-inner">
 
-    <div class="card">
-        <h3><?php echo $resolved_complaints; ?></h3>
-        <p>Resolved Complaints</p>
+            <div class="developer-card-image">
+                <?php if($dev['image']): ?>
+                    <img src="<?php echo $dev['image']; ?>" alt="Developer Photo">
+                <?php endif; ?>
+            </div>
+
+            <div class="developer-meta">
+                <span class="profile-badge">System Developer</span>
+
+                <p><strong>Name:</strong> <?php echo $dev['name']; ?></p>
+                <p><strong>Email:</strong> <?php echo $dev['email']; ?></p>
+                <p><strong>Address:</strong> <?php echo $dev['address']; ?></p>
+                <p><strong>About:</strong> <?php echo $dev['about']; ?></p>
+            </div>
+
+        </div>
     </div>
 
 </div>
-
-<a href="../auth/logout.php">Logout</a>
 
 <?php include('../includes/footer.php'); ?>

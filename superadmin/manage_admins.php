@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if($_SESSION['role'] != 'superadmin'){
+if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'superadmin'){
     header("Location: ../auth/login.php");
     exit();
 }
@@ -48,7 +48,6 @@ $result = mysqli_query($conn,
 <td><?php echo $row['account_status']; ?></td>
 
 <td>
-<a href="promote.php?id=<?php echo $row['user_id']; ?>">Make Admin</a>
 <a href="edit_admin.php?id=<?php echo $row['user_id']; ?>">Edit</a> |
 <a href="?delete=<?php echo $row['user_id']; ?>" onclick="return confirm('Delete admin?')">Delete</a>
 </td>

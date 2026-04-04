@@ -19,24 +19,25 @@ $users = mysqli_fetch_assoc(mysqli_query($conn,
 "SELECT COUNT(*) as total FROM users WHERE role != 'superadmin'"))['total'];
 ?>
 
-<h1>Superadmin Dashboard</h1>
+<div class="dashboard-wrapper page-shell">
 
-<div class="cards">
-
-    <div class="card">
-        <h3><?php echo $admins; ?></h3>
-        <p>Total Admins</p>
+    <div class="dashboard-header">
+        <h1>Superadmin Dashboard</h1>
+        <p>Oversee admin accounts and the broader barangay user base.</p>
     </div>
 
-    <div class="card">
-        <h3><?php echo $users; ?></h3>
-        <p>Total Users</p>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3><?php echo $admins; ?></h3>
+            <p>Total Admins</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><?php echo $users; ?></h3>
+            <p>Total Users</p>
+        </div>
     </div>
 
 </div>
-
-<a href="manage_admins.php">Manage Admins</a><br>
-<a href="system_logs.php">View System Logs</a><br>
-<a href="../auth/logout.php">Logout</a>
 
 <?php include('../includes/footer.php'); ?>

@@ -2,7 +2,7 @@
 session_start();
 include('../config/database.php');
 
-if($_SESSION['role'] != 'admin'){
+if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin'){
     header("Location: ../auth/login.php");
     exit();
 }
@@ -15,8 +15,22 @@ if(isset($_POST['add'])){
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     mysqli_query($conn,
-    "INSERT INTO users (firstname, lastname, email, password, role, account_status, email_verified)
-     VALUES ('$fname','$lname','$email','$password','staff','approved',1)");
+    "INSERT INTO users (firstname, lastname, email, password, role, account_status)
+     VALUES ('$fname','$lname','$email','$password','staff','approved')");
+
+    $user_id = mysqli_insert_id($conn);
+
+    mysqli_query($conn,
+    "INSERT INTO user_auth (user_id, email_verified)
+     VALUES ('$user_id',1)");
+
+    mysqli_query($conn,
+    "INSERT INTO user_profiles (user_id)
+     VALUES ('$user_id')");
+
+    mysqli_query($conn,
+    "INSERT INTO residency (user_id, status)
+     VALUES ('$user_id','verified')");
 
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)

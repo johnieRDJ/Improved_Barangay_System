@@ -1,16 +1,29 @@
 <?php
 session_start();
-include('../config/database.php');
 
-if($_SESSION['role'] != 'superadmin'){
+if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'superadmin'){
     header("Location: ../auth/login.php");
     exit();
 }
 
-$id = $_GET['id'];
+include('../config/database.php');
+include('../includes/header.php');
+include('../includes/sidebar.php');
+
+if(!isset($_GET['id'])){
+    header("Location: manage_admins.php");
+    exit();
+}
+
+$id = intval($_GET['id']);
 
 $user = mysqli_fetch_assoc(mysqli_query($conn,
-"SELECT * FROM users WHERE user_id='$id'"));
+"SELECT * FROM users WHERE user_id='$id' AND role='admin'"));
+
+if(!$user){
+    header("Location: manage_admins.php");
+    exit();
+}
 
 if(isset($_POST['save'])){
 
@@ -23,7 +36,7 @@ if(isset($_POST['save'])){
      firstname='$fname',
      lastname='$lname',
      email='$email'
-     WHERE user_id='$id'");
+     WHERE user_id='$id' AND role='admin'");
 
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)
@@ -42,3 +55,5 @@ if(isset($_POST['save'])){
 
 <button name="save">Save Changes</button>
 </form>
+
+<?php include('../includes/footer.php'); ?>

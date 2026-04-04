@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 30, 2026 at 12:59 PM
+-- Generation Time: Apr 04, 2026 at 05:13 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,7 +43,8 @@ INSERT INTO `appointments` (`appointment_id`, `user_id`, `appointment_date`, `pu
 (1, 3, '2026-03-07 15:10:00', 'Barangay Residency Verification', 'scheduled'),
 (2, 4, '2026-03-07 15:30:00', 'Barangay Residency Verification', 'scheduled'),
 (3, 4, '2026-03-07 15:30:00', 'Barangay Residency Verification', 'scheduled'),
-(4, 5, '2026-03-24 20:43:00', 'Barangay Residency Verification', 'scheduled');
+(4, 5, '2026-03-24 20:43:00', 'Barangay Residency Verification', 'scheduled'),
+(5, 10, '2026-04-04 21:46:00', 'Barangay Residency Verification', 'scheduled');
 
 -- --------------------------------------------------------
 
@@ -182,7 +183,103 @@ INSERT INTO `logs` (`log_id`, `user_id`, `action`, `log_time`) VALUES
 (68, 4, 'Opened staff dashboard', '2026-03-30 09:50:31'),
 (69, 4, 'Viewed assigned complaints', '2026-03-30 09:50:33'),
 (70, 4, 'Opened staff dashboard', '2026-03-30 09:50:35'),
-(71, 1, 'Logged in successfully with 2FA', '2026-03-30 09:58:43');
+(71, 1, 'Logged in successfully with 2FA', '2026-03-30 09:58:43'),
+(72, 1, 'Logged in successfully with 2FA', '2026-04-03 08:47:37'),
+(73, 1, 'Logged in successfully with 2FA', '2026-04-04 03:08:37'),
+(74, 1, 'Logged in successfully with 2FA', '2026-04-04 04:00:21'),
+(75, 9, 'System created default superadmin account', '2026-04-04 05:31:19'),
+(76, 9, 'Logged in successfully with 2FA', '2026-04-04 05:33:21'),
+(77, 9, 'Logged in successfully with 2FA', '2026-04-04 06:02:36'),
+(78, 1, 'Logged in successfully with 2FA', '2026-04-04 07:02:49'),
+(79, 1, 'Logged in successfully with 2FA', '2026-04-04 10:41:52'),
+(80, 1, 'Approved user ID 10', '2026-04-04 13:41:45'),
+(81, 1, 'Updated user ID 10', '2026-04-04 13:44:50'),
+(82, 1, 'Scheduled residency appointment for user ID 10', '2026-04-04 13:45:20'),
+(83, 1, 'Rejected user ID 10', '2026-04-04 13:47:44'),
+(84, 1, 'Updated user ID 10', '2026-04-04 13:48:11'),
+(85, 10, 'Logged in successfully with 2FA', '2026-04-04 13:50:12'),
+(86, 4, 'Logged in successfully with 2FA', '2026-04-04 13:51:01'),
+(87, 4, 'Opened staff dashboard', '2026-04-04 13:51:01'),
+(88, 4, 'Viewed assigned complaints', '2026-04-04 13:51:06'),
+(89, 4, 'Opened staff dashboard', '2026-04-04 13:51:30'),
+(90, 4, 'Viewed assigned complaints', '2026-04-04 13:51:42'),
+(91, 3, 'Reset password via email', '2026-04-04 14:00:42'),
+(92, 10, 'Logged in successfully with 2FA', '2026-04-04 14:01:39'),
+(93, 10, 'Logged in successfully with 2FA', '2026-04-04 14:02:44'),
+(94, 10, 'Reset password via email', '2026-04-04 14:03:34'),
+(95, 10, 'Logged in successfully with 2FA', '2026-04-04 14:04:09'),
+(96, 3, 'Reset password via email', '2026-04-04 14:05:07'),
+(97, 10, 'Logged in successfully with 2FA', '2026-04-04 14:05:48'),
+(98, 10, 'Logged in successfully with 2FA', '2026-04-04 14:12:39'),
+(99, 10, 'Reset password via email', '2026-04-04 14:13:58'),
+(100, 10, 'Logged in successfully with 2FA', '2026-04-04 14:14:53'),
+(101, 4, 'Logged in successfully with 2FA', '2026-04-04 14:16:06'),
+(102, 4, 'Opened staff dashboard', '2026-04-04 14:16:06'),
+(103, 4, 'Viewed assigned complaints', '2026-04-04 14:16:10'),
+(104, 4, 'Viewed assigned complaints', '2026-04-04 14:16:15'),
+(105, 4, 'Opened staff dashboard', '2026-04-04 14:16:17'),
+(106, 4, 'Opened staff dashboard', '2026-04-04 14:16:19'),
+(107, 4, 'Viewed assigned complaints', '2026-04-04 14:16:20'),
+(108, 4, 'Opened staff dashboard', '2026-04-04 14:16:21'),
+(109, 10, 'Logged in successfully with 2FA', '2026-04-04 14:16:50'),
+(110, 1, 'Logged in successfully with 2FA', '2026-04-04 14:17:33'),
+(111, 1, 'Updated user ID 3', '2026-04-04 14:23:14'),
+(112, 1, 'Updated user ID 3', '2026-04-04 14:23:31'),
+(113, 1, 'Verified residency for user ID 3', '2026-04-04 14:50:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_resets`
+--
+
+CREATE TABLE `password_resets` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_expiry` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `password_resets`
+--
+
+INSERT INTO `password_resets` (`id`, `user_id`, `reset_token`, `reset_expiry`) VALUES
+(1, 1, NULL, NULL),
+(2, 2, NULL, NULL),
+(4, 4, 'a2ca502c274c3838d5108e93b3d80c7f5448decc04f500d8c0179508fe480a12b4e8e2870b51a98a2bb2818911161f7af1ad', '2026-03-28 11:02:54'),
+(5, 5, NULL, NULL),
+(6, 6, NULL, NULL),
+(7, 7, NULL, NULL),
+(8, 8, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `residency`
+--
+
+CREATE TABLE `residency` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `status` enum('pending','verified','none') DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `residency`
+--
+
+INSERT INTO `residency` (`id`, `user_id`, `status`) VALUES
+(1, 1, 'verified'),
+(2, 2, 'verified'),
+(3, 3, 'verified'),
+(4, 4, 'verified'),
+(5, 5, 'pending'),
+(6, 6, 'pending'),
+(7, 7, 'pending'),
+(8, 8, 'pending'),
+(9, 9, 'verified'),
+(10, 10, 'verified');
 
 -- --------------------------------------------------------
 
@@ -196,35 +293,88 @@ CREATE TABLE `users` (
   `lastname` varchar(50) DEFAULT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('admin','staff','complainant') NOT NULL,
-  `residency_status` enum('pending','verified','none') DEFAULT 'pending',
+  `role` enum('superadmin','admin','staff','complainant') NOT NULL,
   `account_status` enum('pending','approved','rejected') DEFAULT 'pending',
-  `otp_code` varchar(6) DEFAULT NULL,
-  `otp_expiry` datetime DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `email_verified` tinyint(1) DEFAULT 0,
-  `verification_token` varchar(255) DEFAULT NULL,
-  `reset_token` varchar(255) DEFAULT NULL,
-  `reset_expiry` datetime DEFAULT NULL,
-  `profile_image` varchar(255) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `about` text DEFAULT NULL
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password`, `role`, `residency_status`, `account_status`, `otp_code`, `otp_expiry`, `created_at`, `email_verified`, `verification_token`, `reset_token`, `reset_expiry`, `profile_image`, `address`, `phone`, `about`) VALUES
-(1, 'System', 'Administrator', 'admin@barangay.com', '$2y$10$KAMo90XDjDfAEszw8.6BAOZrFGgmH1vli0LZvHRmcyH.WZuDj2F0m', 'admin', 'verified', 'approved', '320008', '2026-03-30 12:02:55', '2026-03-06 06:33:01', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, 'Rj', 'Rj', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'verified', 'approved', '377311', '2026-03-24 15:57:13', '2026-03-07 06:42:51', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(3, 'Venzoy', 'Venzoy', 'rjdy2003@gmail.com', '$2y$10$d78SDT.KXvVGq70bcfzZL.sWZktYcaKsIB7Kn09zE2jPEs31zvurO', 'staff', 'pending', 'rejected', NULL, NULL, '2026-03-07 07:06:48', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(4, 'Arjay', 'Arjay', 'johniedy2003@gmail.com', '$2y$10$Mfw08cTjdFm7vINIhCFxIuMEH4ZxndAZEA.hdW.4nYZQzVOKy43Ta', 'staff', 'verified', 'approved', '550027', '2026-03-30 11:53:57', '2026-03-07 07:28:26', 1, NULL, 'a2ca502c274c3838d5108e93b3d80c7f5448decc04f500d8c0179508fe480a12b4e8e2870b51a98a2bb2818911161f7af1ad', '2026-03-28 11:02:54', 'dev.png', 'Aguada, Recto St. Ozamiz City', '9754629572', 'Third year college student at Northwestern Mindanao State College of Science and Technology.'),
-(5, 'Jonah', 'Derubio', 'jonahdyderubio@gmail.com', '$2y$10$VNHK0YldHmZhc0Cl3DaeguLcFP2YRWZ89eozeFXU/d3VWg12s.qey', 'complainant', 'pending', 'rejected', NULL, NULL, '2026-03-22 04:57:50', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(6, 'Louie Jay', 'Fortuna', 'louiejay.fortuna@nmsc.edu.ph', '$2y$10$etUiq6u0iEJvjAfjqfPnduAgPa63UdNtIpITwMyVE9u4rsb5nZUVy', 'complainant', 'pending', 'pending', NULL, NULL, '2026-03-24 12:02:20', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(7, 'Neil Martin', 'Molina', 'neilmartin.molina@nmsc.edu.ph', '$2y$10$RwprlWHigUmRjXtwc1LKcu65BMU4EGxEqzI68RZPkO2F9/DmV37yC', 'complainant', 'pending', 'pending', NULL, NULL, '2026-03-24 12:53:12', 0, '416eb5ba3a87fb2469396648494e7064', NULL, NULL, NULL, NULL, NULL, NULL),
-(8, 'Argy', 'Derubio', 'derubiojohnie@gmail.com', '$2y$10$QcySt4FZZScXMP0u8GBCZeT0zLd6iL.9eUYE6oV5dPsjN/B7nIo6W', 'staff', 'pending', 'pending', NULL, NULL, '2026-03-24 13:17:41', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password`, `role`, `account_status`, `created_at`) VALUES
+(1, 'System', 'Administrator', 'admin@barangay.com', '$2y$10$KAMo90XDjDfAEszw8.6BAOZrFGgmH1vli0LZvHRmcyH.WZuDj2F0m', 'admin', 'approved', '2026-03-06 06:33:01'),
+(2, 'Rj', 'Rj', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'approved', '2026-03-07 06:42:51'),
+(3, 'Venzoy', 'Venzoy', 'rjdy2003@gmail.com', '$2y$10$ErfbD8D.jQBrQ5rDa6gpE./vo3lYrUqnGlUwzZDTNL428IBStCDdG', 'staff', 'approved', '2026-03-07 07:06:48'),
+(4, 'Arjay', 'Arjay', 'johniedy2003@gmail.com', '$2y$10$Mfw08cTjdFm7vINIhCFxIuMEH4ZxndAZEA.hdW.4nYZQzVOKy43Ta', 'staff', 'approved', '2026-03-07 07:28:26'),
+(5, 'Jonah', 'Derubio', 'jonahdyderubio@gmail.com', '$2y$10$VNHK0YldHmZhc0Cl3DaeguLcFP2YRWZ89eozeFXU/d3VWg12s.qey', 'complainant', 'rejected', '2026-03-22 04:57:50'),
+(6, 'Louie Jay', 'Fortuna', 'louiejay.fortuna@nmsc.edu.ph', '$2y$10$etUiq6u0iEJvjAfjqfPnduAgPa63UdNtIpITwMyVE9u4rsb5nZUVy', 'complainant', 'pending', '2026-03-24 12:02:20'),
+(7, 'Neil Martin', 'Molina', 'neilmartin.molina@nmsc.edu.ph', '$2y$10$RwprlWHigUmRjXtwc1LKcu65BMU4EGxEqzI68RZPkO2F9/DmV37yC', 'complainant', 'pending', '2026-03-24 12:53:12'),
+(8, 'Argy', 'Derubio', 'derubiojohnie@gmail.com', '$2y$10$QcySt4FZZScXMP0u8GBCZeT0zLd6iL.9eUYE6oV5dPsjN/B7nIo6W', 'staff', 'pending', '2026-03-24 13:17:41'),
+(9, 'Super', 'Admin', 'superadmin@barangay.com', '$2y$10$nJNLeJ.dzBiH7DmgD/z6oe/eFjhffW1QPGn3kAwVsLS6ihjuMUUM2', 'superadmin', 'approved', '2026-04-04 05:31:19'),
+(10, 'Kennard', 'Derubio', 'kennarddyderubio@gmail.com', '$2y$10$TXDJPXMR7N0QxZZlrsAYU.P6sQJFTeZt6EF0dsbC2OWsngLVmxTeS', 'complainant', 'approved', '2026-04-04 10:39:57');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_auth`
+--
+
+CREATE TABLE `user_auth` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `email_verified` tinyint(1) DEFAULT 0,
+  `verification_token` varchar(255) DEFAULT NULL,
+  `otp_code` varchar(6) DEFAULT NULL,
+  `otp_expiry` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_auth`
+--
+
+INSERT INTO `user_auth` (`id`, `user_id`, `email_verified`, `verification_token`, `otp_code`, `otp_expiry`) VALUES
+(1, 1, 1, NULL, NULL, NULL),
+(2, 2, 1, NULL, '377311', '2026-03-24 15:57:13'),
+(3, 3, 0, NULL, NULL, NULL),
+(4, 4, 1, NULL, NULL, NULL),
+(5, 5, 0, NULL, NULL, NULL),
+(6, 6, 0, NULL, NULL, NULL),
+(7, 7, 0, '416eb5ba3a87fb2469396648494e7064', NULL, NULL),
+(8, 8, 1, NULL, NULL, NULL),
+(9, 9, 1, NULL, NULL, NULL),
+(10, 10, 1, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_profiles`
+--
+
+CREATE TABLE `user_profiles` (
+  `profile_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `about` text DEFAULT NULL,
+  `profile_image` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_profiles`
+--
+
+INSERT INTO `user_profiles` (`profile_id`, `user_id`, `address`, `phone`, `about`, `profile_image`) VALUES
+(1, 1, NULL, NULL, NULL, NULL),
+(2, 2, NULL, NULL, NULL, NULL),
+(3, 3, NULL, NULL, NULL, NULL),
+(4, 4, 'Aguada, Recto St. Ozamiz City', '9754629572', 'Third year college student at Northwestern Mindanao State College of Science and Technology.', 'dev.png'),
+(5, 5, NULL, NULL, NULL, NULL),
+(6, 6, NULL, NULL, NULL, NULL),
+(7, 7, NULL, NULL, NULL, NULL),
+(8, 8, NULL, NULL, NULL, NULL),
+(9, 9, NULL, NULL, NULL, NULL),
+(10, 10, NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -259,11 +409,39 @@ ALTER TABLE `logs`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `residency`
+--
+ALTER TABLE `residency`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `user_auth`
+--
+ALTER TABLE `user_auth`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `user_profiles`
+--
+ALTER TABLE `user_profiles`
+  ADD PRIMARY KEY (`profile_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -273,7 +451,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `complaints`
@@ -291,13 +469,37 @@ ALTER TABLE `developer_profile`
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
+
+--
+-- AUTO_INCREMENT for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `residency`
+--
+ALTER TABLE `residency`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `user_auth`
+--
+ALTER TABLE `user_auth`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `user_profiles`
+--
+ALTER TABLE `user_profiles`
+  MODIFY `profile_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
@@ -321,6 +523,30 @@ ALTER TABLE `complaints`
 --
 ALTER TABLE `logs`
   ADD CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD CONSTRAINT `password_resets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `residency`
+--
+ALTER TABLE `residency`
+  ADD CONSTRAINT `residency_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_auth`
+--
+ALTER TABLE `user_auth`
+  ADD CONSTRAINT `user_auth_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_profiles`
+--
+ALTER TABLE `user_profiles`
+  ADD CONSTRAINT `user_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

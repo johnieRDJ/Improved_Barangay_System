@@ -73,11 +73,25 @@ if(isset($_POST['register'])){
     else{
 
         mysqli_query($conn,
-        "INSERT INTO users (firstname, lastname, email, password, role, verification_token) 
-        VALUES ('$firstname','$lastname','$email','$password_hash','$role','$token')");
+        "INSERT INTO users (firstname, lastname, email, password, role) 
+        VALUES ('$firstname','$lastname','$email','$password_hash','$role')");
+
+        $user_id = mysqli_insert_id($conn);
+
+        mysqli_query($conn,
+        "INSERT INTO user_auth (user_id, email_verified, verification_token)
+         VALUES ('$user_id',0,'$token')");
+
+        mysqli_query($conn,
+        "INSERT INTO user_profiles (user_id)
+         VALUES ('$user_id')");
+
+        mysqli_query($conn,
+        "INSERT INTO residency (user_id, status)
+         VALUES ('$user_id','pending')");
 
         // Verification link
-        $link = "http://localhost/barangay/auth/verify_email.php?token=$token";
+        $link = rtrim(APP_URL, '/') . "/auth/verify_email.php?token=" . urlencode($token);
 
         sendOTP($email, "Click this link to verify your account:<br><a href='$link'>$link</a>");
 
