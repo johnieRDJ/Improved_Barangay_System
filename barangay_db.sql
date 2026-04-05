@@ -80,6 +80,7 @@ INSERT INTO `complaints` (`complaint_id`, `complainant_id`, `assigned_staff_id`,
 
 CREATE TABLE `developer_profile` (
   `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `name` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
@@ -91,9 +92,8 @@ CREATE TABLE `developer_profile` (
 -- Dumping data for table `developer_profile`
 --
 
-INSERT INTO `developer_profile` (`id`, `name`, `email`, `address`, `about`, `image`) VALUES
-(1, 'Johnie Niel Derubio', 'johniedy2003@gmail.com', 'Aguada, Recto St. Ozamiz City', 'Continue studying in BS information Technology at Northwestern Mindanao State College of Science and Technology', 'dev.png'),
-(2, 'Johnie Niel Derubio', 'johniedy2003@gmail.com', 'Aguada, Recto St. Ozamiz City', 'Continue studying in BS information Technology at Northwestern Mindanao State College of Science and Technology', 'dev.png');
+INSERT INTO `developer_profile` (`id`, `user_id`, `name`, `email`, `address`, `about`, `image`) VALUES
+(1, 4, 'Johnie Niel Derubio', 'johniedy2003@gmail.com', 'Aguada, Recto St. Ozamiz City', 'Continue studying in BS information Technology at Northwestern Mindanao State College of Science and Technology', 'dev.png');
 
 -- --------------------------------------------------------
 
@@ -399,7 +399,8 @@ ALTER TABLE `complaints`
 -- Indexes for table `developer_profile`
 --
 ALTER TABLE `developer_profile`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `logs`
@@ -463,7 +464,7 @@ ALTER TABLE `complaints`
 -- AUTO_INCREMENT for table `developer_profile`
 --
 ALTER TABLE `developer_profile`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `logs`
@@ -517,6 +518,12 @@ ALTER TABLE `appointments`
 ALTER TABLE `complaints`
   ADD CONSTRAINT `complaints_ibfk_1` FOREIGN KEY (`complainant_id`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `complaints_ibfk_2` FOREIGN KEY (`assigned_staff_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `developer_profile`
+--
+ALTER TABLE `developer_profile`
+  ADD CONSTRAINT `developer_profile_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `logs`

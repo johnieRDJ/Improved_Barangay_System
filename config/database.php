@@ -1,8 +1,14 @@
 <?php
 if(!defined('APP_URL')){
-    // Change this when you deploy online.
-    // Example: https://yourdomain.com/barangay
-    define('APP_URL', 'http://localhost/barangay');
+    if(!empty($_SERVER['HTTP_HOST'])){
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $scriptPath = str_replace('\\', '/', dirname(dirname($_SERVER['SCRIPT_NAME'] ?? '')));
+        $basePath = ($scriptPath === '/' || $scriptPath === '.') ? '' : rtrim($scriptPath, '/');
+        define('APP_URL', $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath);
+    } else {
+        // CLI/local fallback
+        define('APP_URL', 'http://localhost/barangay');
+    }
 }
 
 $conn = mysqli_connect("localhost", "root", "", "barangay_db");

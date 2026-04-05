@@ -30,13 +30,32 @@ include('../includes/sidebar.php');
 /* ===============================
    🔴 FETCH DEVELOPER DATA
 ================================ */
-$dev = [
-    'name' => 'Johnie Niel Derubio',
-    'email' => 'johniedy2003@gmail.com',
-    'address' => 'Aguada, Recto St. Ozamiz City',
-    'about' => 'Continue studying in BS Information Technology at Northwestern Mindanao State College of Science and Technology',
-    'image' => '../uploads/developer.png'
-];
+$devQuery = mysqli_query($conn, "
+    SELECT
+        COALESCE(NULLIF(dp.name, ''), CONCAT_WS(' ', u.firstname, u.lastname)) AS name,
+        COALESCE(NULLIF(dp.email, ''), u.email) AS email,
+        dp.address,
+        dp.about,
+        dp.image
+    FROM developer_profile dp
+    LEFT JOIN users u ON u.user_id = dp.user_id
+    ORDER BY dp.id ASC
+    LIMIT 1
+");
+
+$dev = $devQuery ? mysqli_fetch_assoc($devQuery) : null;
+
+if (!$dev) {
+    $dev = [
+        'name' => 'Johnie Niel Derubio',
+        'email' => 'johniedy2003@gmail.com',
+        'address' => 'Aguada, Recto St. Ozamiz City',
+        'about' => 'Continue studying in BS Information Technology at Northwestern Mindanao State College of Science and Technology',
+        'image' => 'developer.png'
+    ];
+}
+
+$dev['image'] = !empty($dev['image']) ? '../uploads/' . basename($dev['image']) : '../uploads/developer.png';
 
 
 
@@ -96,7 +115,7 @@ $resolved_complaints = mysqli_fetch_assoc(mysqli_query($conn,
     </div>
 
     <div class="developer-card">
-        <h2 style="text-align:left; margin-bottom:6px;">Developer Information</h2>
+        <h2 style="text-align:left; margin-bottom:6px;">About Developer</h2>
         <p class="developer-note">This section cannot be modified</p>
 
         <div class="developer-card-inner">
