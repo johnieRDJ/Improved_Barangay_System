@@ -93,9 +93,10 @@ if(isset($_POST['register'])){
         // Verification link
         $link = rtrim(APP_URL, '/') . "/auth/verify_email.php?token=" . urlencode($token);
 
-        sendOTP($email, "Click this link to verify your account:<br><a href='$link'>$link</a>");
+        $fullname = trim($firstname . ' ' . $lastname);
+        sendRegistrationVerificationEmail($email, $fullname, $role, $link);
 
-        echo "<script>alert('Registration successful! Check your email to verify your account.');</script>";
+        echo "<script>alert('Registration successful! Check your email for the verification message and next steps.');</script>";
     }
 }
 ?>

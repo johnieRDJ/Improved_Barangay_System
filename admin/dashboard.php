@@ -114,7 +114,7 @@ $resolved_complaints = mysqli_fetch_assoc(mysqli_query($conn,
 
     </div>
 
-    <div class="developer-card">
+    <div class="developer-card" id="about-developer">
         <h2 style="text-align:left; margin-bottom:6px;">About Developer</h2>
         <p class="developer-note">This section cannot be modified</p>
 

@@ -2,6 +2,7 @@
 session_start();
 
 include('../config/database.php');
+include('../includes/complaint_updates.php');
 
 
 include('../includes/send_complaint_update.php');
@@ -32,11 +33,19 @@ if(isset($_POST['assign'])){
         $log_msg = "Assigned staff to complaint ID $complaint_id";
     }
 
+    $staff_data = mysqli_fetch_assoc(mysqli_query($conn,
+    "SELECT firstname, lastname FROM users WHERE user_id='$staff_id' LIMIT 1"));
+
+    $staff_name = $staff_data
+        ? trim($staff_data['firstname'] . ' ' . $staff_data['lastname'])
+        : 'selected staff member';
+
     // Update complaint
     mysqli_query($conn,
     "UPDATE complaints
      SET assigned_staff_id='$staff_id',
-         status='In Progress'
+         status='In Progress',
+         resolution_confirmation=NULL
      WHERE complaint_id='$complaint_id'");
 
     // Send email
@@ -46,6 +55,16 @@ if(isset($_POST['assign'])){
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)
      VALUES ('".$_SESSION['user_id']."', '$log_msg')");
+
+    addComplaintUpdate(
+        $conn,
+        $complaint_id,
+        intval($_SESSION['user_id']),
+        'admin',
+        'assigned',
+        'In Progress',
+        "Complaint assigned to $staff_name."
+    );
 
     header("Location: manage_complaints.php");
     exit();
@@ -98,6 +117,12 @@ $staff = mysqli_query($conn,
 <?php
 if($row['status'] == 'Pending'){
     echo "<span style='color:orange;'>Pending</span>";
+}
+elseif($row['status'] == 'Resolved' && $row['resolution_confirmation'] == 'pending'){
+    echo "<span style='color:#1d4f91;'>Awaiting Confirmation</span>";
+}
+elseif($row['status'] == 'In Progress' && $row['resolution_confirmation'] == 'reopened'){
+    echo "<span style='color:#b45309;'>Reopened</span>";
 }
 elseif($row['status'] == 'In Progress'){
     echo "<span style='color:blue;'>In Progress</span>";

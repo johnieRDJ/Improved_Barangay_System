@@ -1,4 +1,24 @@
 <?php
+if(!isset($conn) || !($conn instanceof mysqli)){
+    return;
+}
+
+function barangayTableExists(mysqli $conn, string $tableName): bool
+{
+    $escapedTableName = mysqli_real_escape_string($conn, $tableName);
+    $result = mysqli_query($conn, "SHOW TABLES LIKE '$escapedTableName'");
+
+    return $result instanceof mysqli_result && mysqli_num_rows($result) > 0;
+}
+
+$requiredTables = ['users', 'user_profiles', 'user_auth', 'residency', 'logs'];
+
+foreach($requiredTables as $requiredTable){
+    if(!barangayTableExists($conn, $requiredTable)){
+        return;
+    }
+}
+
 $superadmin_email = 'superadmin@barangay.com';
 
 $check_superadmin = mysqli_query($conn,

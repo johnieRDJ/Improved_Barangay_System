@@ -2,6 +2,10 @@
 session_start();
 include('../config/database.php');
 
+mysqli_query($conn,
+"DELETE FROM password_resets
+ WHERE reset_expiry < NOW()");
+
 // 🔴 CHECK TOKEN
 if(!isset($_GET['token']) || empty($_GET['token'])){
     die("Invalid access (No token)");
@@ -43,6 +47,11 @@ if(isset($_POST['reset'])){
         exit();
     }
 
+    if(strlen($password) < 8){
+        echo "<script>alert('Password must be at least 8 characters long.');</script>";
+        exit();
+    }
+
     if(password_verify($password, $user['password'])){
         echo "<script>alert('Please choose a new password different from your old password');</script>";
         exit();
@@ -67,8 +76,8 @@ if(isset($_POST['reset'])){
 
     // 🔴 DELETE TOKEN (IMPORTANT 🔥)
     mysqli_query($conn,
-    "DELETE FROM password_resets 
-     WHERE reset_token='$token'");
+    "DELETE FROM password_resets
+     WHERE user_id='$user_id'");
 
     // 🔴 LOG
     mysqli_query($conn,
@@ -76,7 +85,7 @@ if(isset($_POST['reset'])){
      VALUES ('$user_id','Reset password via email')");
 
     echo "<script>
-    alert('Password reset successful');
+    alert('Password reset successful. You can now log in with your new password.');
     window.location='login.php';
     </script>";
 }

@@ -404,6 +404,159 @@ button:disabled {
     font-size: 14px;
 }
 
+.complaint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.complaint-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.complaint-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.complaint-status-group {
+    display: flex;
+    align-items: center;
+}
+
+.complaint-status-progress {
+    background: #e8f0ff;
+    color: #1d4f91;
+}
+
+.complaint-status-awaiting {
+    background: #eef4ff;
+    color: #244b8a;
+}
+
+.complaint-status-reopened {
+    background: #fff0d8;
+    color: #b45309;
+}
+
+.complaint-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.complaint-detail-grid p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.complaint-action-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.complaint-action-links .page-action {
+    width: 100%;
+}
+
+.complaint-timeline {
+    border-top: 1px solid #e5eaf2;
+    padding-top: 18px;
+}
+
+.complaint-timeline h3 {
+    margin-bottom: 14px;
+    color: #12355b;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 14px 16px 14px 20px;
+    border-left: 4px solid #1d4f91;
+    background: #f8fbff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-item-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.timeline-item-header span {
+    color: #5b6b7f;
+    font-size: 13px;
+}
+
+.timeline-item-meta {
+    margin-bottom: 8px;
+    color: #355070;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.timeline-item p {
+    margin: 0;
+    color: #4f5f73;
+}
+
+.timeline-proof-link {
+    margin-top: 10px;
+}
+
+.timeline-proof-link a {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #e8f0ff;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1d4f91;
+    font-weight: 600;
+}
+
+.timeline-proof-link a:hover {
+    background: #d9e6ff;
+}
+
+.complaint-update-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.complaint-confirmation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.complaint-update-form select,
+.complaint-update-form textarea,
+.complaint-update-form button,
+.complaint-confirmation-form textarea,
+.complaint-confirmation-form button {
+    width: 100%;
+    margin: 0;
+}
+
 .table-card {
     background: #ffffff;
     border: 1px solid #e5eaf2;
@@ -492,6 +645,51 @@ table {
     min-width: 900px;
 }
 
+.staff-complaints-table {
+    min-width: 1380px;
+    table-layout: fixed;
+}
+
+.staff-complaints-table th {
+    white-space: nowrap;
+}
+
+.staff-complaints-table th:nth-child(1),
+.staff-complaints-table td:nth-child(1) {
+    width: 150px;
+    min-width: 150px;
+}
+
+.staff-complaints-table th:nth-child(2),
+.staff-complaints-table td:nth-child(2) {
+    width: 170px;
+    min-width: 170px;
+}
+
+.staff-complaints-table th:nth-child(3),
+.staff-complaints-table td:nth-child(3) {
+    width: 260px;
+    min-width: 260px;
+}
+
+.staff-complaints-table th:nth-child(4),
+.staff-complaints-table td:nth-child(4) {
+    width: 170px;
+    min-width: 170px;
+}
+
+.staff-complaints-table th:nth-child(5),
+.staff-complaints-table td:nth-child(5) {
+    width: 220px;
+    min-width: 220px;
+}
+
+.staff-complaints-table th:nth-child(6),
+.staff-complaints-table td:nth-child(6) {
+    width: 410px;
+    min-width: 410px;
+}
+
 .users-table th,
 .users-table td {
     white-space: normal;
@@ -532,7 +730,12 @@ td {
     text-align: left;
     border-bottom: 1px solid #e8edf4;
     vertical-align: top;
-    word-break: break-word;
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+
+th {
+    overflow-wrap: normal;
 }
 
 .page-action {
@@ -648,6 +851,10 @@ td {
         text-align: center;
     }
 
+    .complaint-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
     .footer-grid {
         gap: 20px;
     }
@@ -700,6 +907,12 @@ td {
     .footer-column {
         flex-basis: 100%;
         min-width: 0;
+    }
+
+    .complaint-card-header,
+    .timeline-item-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
 

@@ -85,6 +85,10 @@ if(isset($_POST['verify'])){
         <input type="text" name="otp" placeholder="Enter 6-digit OTP" required>
         <button type="submit" name="verify">Verify</button>
     </form>
+
+    <div class="link">
+        <a href="login.php">Back to Login</a>
+    </div>
 </div>
 
 </body>

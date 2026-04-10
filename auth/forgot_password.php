@@ -2,17 +2,28 @@
 include('../config/database.php');
 include('../includes/send_reset.php');
 
+$message = '';
+
 if(isset($_POST['send'])){
 
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $email_input = trim($_POST['email']);
+    $email = mysqli_real_escape_string($conn, $email_input);
+
+    mysqli_query($conn,
+    "DELETE FROM password_resets
+     WHERE reset_expiry < NOW()");
 
     // 🔴 CHECK USER
     $user = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT user_id FROM users WHERE email='$email'"));
+    "SELECT user_id, firstname, lastname, email
+     FROM users
+     WHERE email='$email'
+     LIMIT 1"));
 
     if($user){
 
         $user_id = $user['user_id'];
+        $fullname = trim($user['firstname'] . ' ' . $user['lastname']);
 
         // 🔴 GENERATE TOKEN
         $token = bin2hex(random_bytes(50));
@@ -28,19 +39,26 @@ if(isset($_POST['send'])){
          VALUES ('$user_id','$token','$expiry')");
 
         // 🔴 SEND EMAIL
-        sendResetLink($email, $token);
-
-        echo "<script>alert('Reset link sent to your email');</script>";
-
-    } else {
-        echo "<script>alert('Email not found');</script>";
+        sendResetLink($user['email'], $fullname, $token);
     }
+
+    $message = "If an account with that email exists, a password reset link has been sent.";
 }
 ?>
 
 <h2>Forgot Password</h2>
 
+<p>Enter the email address registered to your account. If it exists in the system, a reset link will be sent there.</p>
+
+<?php if($message != ''): ?>
+<p><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
+<?php endif; ?>
+
 <form method="POST">
-    <input type="email" name="email" placeholder="Enter your email" required>
+    <input type="email" name="email" placeholder="Enter your registered email" required>
     <button name="send">Send Reset Link</button>
 </form>
+
+<div class="link">
+    <a href="login.php">Back to Login</a>
+</div>

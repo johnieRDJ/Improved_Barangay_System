@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 04, 2026 at 05:13 PM
+-- Generation Time: Apr 10, 2026 at 07:14 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,6 +60,7 @@ CREATE TABLE `complaints` (
   `description` text DEFAULT NULL,
   `staff_comment` text DEFAULT NULL,
   `status` enum('Pending','In Progress','Resolved') DEFAULT 'Pending',
+  `resolution_confirmation` enum('pending','confirmed','reopened') DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -67,10 +68,39 @@ CREATE TABLE `complaints` (
 -- Dumping data for table `complaints`
 --
 
-INSERT INTO `complaints` (`complaint_id`, `complainant_id`, `assigned_staff_id`, `subject`, `description`, `staff_comment`, `status`, `created_at`) VALUES
-(1, 2, 4, 'Ace Azcona sa Qith\'s Dorm', 'Banha kaayu sir, permig ungol kag lulu, bahog utot sir kay bulan na way libang2', 'Okay na sir ngayo daw sya pasensya.', 'Resolved', '2026-03-07 08:26:30'),
-(2, 2, NULL, 'Rode', 'sigeg tagay banha kaayu rba sir tas wa nay limpyo iyang lote hugaw way panilhig', NULL, 'Pending', '2026-03-22 05:38:11'),
-(3, 2, NULL, 'LJ Saavedra', 'Sag asa mo butang basiwa sa coke daghan nag case diri nanga tibulaag kay sag asa ra neya e butang, sahay sa dalan pana.', NULL, 'Pending', '2026-03-22 15:35:56');
+INSERT INTO `complaints` (`complaint_id`, `complainant_id`, `assigned_staff_id`, `subject`, `description`, `staff_comment`, `status`, `resolution_confirmation`, `created_at`) VALUES
+(1, 2, 4, 'Ace Azcona sa Qith\'s Dorm', 'Banha kaayu sir, permig ungol kag lulu, bahog utot sir kay bulan na way libang2', 'Okay na sir ngayo daw sya pasensya.', 'Resolved', 'confirmed', '2026-03-07 08:26:30'),
+(2, 2, NULL, 'Rode', 'sigeg tagay banha kaayu rba sir tas wa nay limpyo iyang lote hugaw way panilhig', NULL, 'Pending', NULL, '2026-03-22 05:38:11'),
+(3, 2, 4, 'LJ Saavedra', 'Sag asa mo butang basiwa sa coke daghan nag case diri nanga tibulaag kay sag asa ra neya e butang, sahay sa dalan pana.', NULL, 'In Progress', NULL, '2026-03-22 15:35:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `complaint_updates`
+--
+
+CREATE TABLE `complaint_updates` (
+  `update_id` int(11) NOT NULL,
+  `complaint_id` int(11) NOT NULL,
+  `actor_user_id` int(11) DEFAULT NULL,
+  `actor_role` varchar(50) DEFAULT NULL,
+  `update_type` varchar(50) DEFAULT NULL,
+  `status_snapshot` varchar(50) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `proof_path` varchar(255) DEFAULT NULL,
+  `proof_original_name` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `complaint_updates`
+--
+
+INSERT INTO `complaint_updates` (`update_id`, `complaint_id`, `actor_user_id`, `actor_role`, `update_type`, `status_snapshot`, `message`, `proof_path`, `proof_original_name`, `created_at`) VALUES
+(1, 1, 2, 'complainant', 'submitted', 'Pending', 'Complaint submitted by complainant.', NULL, NULL, '2026-03-07 08:26:30'),
+(2, 2, 2, 'complainant', 'submitted', 'Pending', 'Complaint submitted by complainant.', NULL, NULL, '2026-03-22 05:38:11'),
+(3, 3, 2, 'complainant', 'submitted', 'Pending', 'Complaint submitted by complainant.', NULL, NULL, '2026-03-22 15:35:56'),
+(4, 3, 1, 'admin', 'assigned', 'In Progress', 'Complaint assigned to Arjay Arjay.', NULL, NULL, '2026-04-10 16:54:40');
 
 -- --------------------------------------------------------
 
@@ -225,7 +255,26 @@ INSERT INTO `logs` (`log_id`, `user_id`, `action`, `log_time`) VALUES
 (110, 1, 'Logged in successfully with 2FA', '2026-04-04 14:17:33'),
 (111, 1, 'Updated user ID 3', '2026-04-04 14:23:14'),
 (112, 1, 'Updated user ID 3', '2026-04-04 14:23:31'),
-(113, 1, 'Verified residency for user ID 3', '2026-04-04 14:50:42');
+(113, 1, 'Verified residency for user ID 3', '2026-04-04 14:50:42'),
+(114, 1, 'Logged in successfully with 2FA', '2026-04-10 15:00:12'),
+(115, 1, 'Logged in successfully with 2FA', '2026-04-10 15:11:02'),
+(116, 1, 'Logged in successfully with 2FA', '2026-04-10 15:13:16'),
+(117, 1, 'Logged in successfully with 2FA', '2026-04-10 15:16:05'),
+(118, 2, 'Logged in successfully with 2FA', '2026-04-10 15:42:28'),
+(119, 4, 'Logged in successfully with 2FA', '2026-04-10 16:51:34'),
+(120, 4, 'Opened staff dashboard', '2026-04-10 16:51:34'),
+(121, 4, 'Viewed assigned complaints', '2026-04-10 16:51:37'),
+(122, 4, 'Opened staff dashboard', '2026-04-10 16:51:45'),
+(123, 4, 'Viewed assigned complaints', '2026-04-10 16:51:48'),
+(124, 4, 'Viewed assigned complaints', '2026-04-10 16:51:51'),
+(125, 1, 'Logged in successfully with 2FA', '2026-04-10 16:53:30'),
+(126, 1, 'Assigned staff to complaint ID 3', '2026-04-10 16:54:40'),
+(127, 2, 'Logged in successfully with 2FA', '2026-04-10 16:58:30'),
+(128, 4, 'Logged in successfully with 2FA', '2026-04-10 16:59:28'),
+(129, 4, 'Opened staff dashboard', '2026-04-10 16:59:28'),
+(130, 4, 'Viewed assigned complaints', '2026-04-10 16:59:31'),
+(131, 4, 'Viewed assigned complaints', '2026-04-10 17:04:02'),
+(132, 4, 'Opened staff dashboard', '2026-04-10 17:07:29');
 
 -- --------------------------------------------------------
 
@@ -335,7 +384,7 @@ CREATE TABLE `user_auth` (
 
 INSERT INTO `user_auth` (`id`, `user_id`, `email_verified`, `verification_token`, `otp_code`, `otp_expiry`) VALUES
 (1, 1, 1, NULL, NULL, NULL),
-(2, 2, 1, NULL, '377311', '2026-03-24 15:57:13'),
+(2, 2, 1, NULL, NULL, NULL),
 (3, 3, 0, NULL, NULL, NULL),
 (4, 4, 1, NULL, NULL, NULL),
 (5, 5, 0, NULL, NULL, NULL),
@@ -394,6 +443,14 @@ ALTER TABLE `complaints`
   ADD PRIMARY KEY (`complaint_id`),
   ADD KEY `complainant_id` (`complainant_id`),
   ADD KEY `assigned_staff_id` (`assigned_staff_id`);
+
+--
+-- Indexes for table `complaint_updates`
+--
+ALTER TABLE `complaint_updates`
+  ADD PRIMARY KEY (`update_id`),
+  ADD KEY `complaint_id` (`complaint_id`),
+  ADD KEY `actor_user_id` (`actor_user_id`);
 
 --
 -- Indexes for table `developer_profile`
@@ -461,6 +518,12 @@ ALTER TABLE `complaints`
   MODIFY `complaint_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `complaint_updates`
+--
+ALTER TABLE `complaint_updates`
+  MODIFY `update_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `developer_profile`
 --
 ALTER TABLE `developer_profile`
@@ -470,7 +533,7 @@ ALTER TABLE `developer_profile`
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
 
 --
 -- AUTO_INCREMENT for table `password_resets`

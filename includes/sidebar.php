@@ -13,6 +13,7 @@
 
         <a href="../admin/profile.php">My Profile</a>
         <a href="../admin/dashboard.php">Dashboard</a>
+        <a href="../admin/dashboard.php#about-developer">About Developer</a>
         <a href="../admin/manage_users.php">Manage Users</a>
         <a href="../admin/manage_complaints.php">Manage Complaints</a>
         <a href="../admin/view_logs.php">System Logs</a>

@@ -2,13 +2,14 @@
 session_start();
 
 include('../config/database.php');
-include('../includes/header.php');
+include('../includes/complaint_updates.php');
 
-if($_SESSION['role'] != 'complainant'){
+if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'complainant'){
     header("Location: ../auth/login.php");
     exit();
 }
 
+include('../includes/header.php');
 include('../includes/sidebar.php');
 
 if(isset($_POST['submit'])){
@@ -23,6 +24,18 @@ if(isset($_POST['submit'])){
     mysqli_query($conn,
     "INSERT INTO complaints (complainant_id, subject, description)
      VALUES ('$user_id','$subject','$description')");
+
+    $complaint_id = mysqli_insert_id($conn);
+
+    addComplaintUpdate(
+        $conn,
+        $complaint_id,
+        intval($user_id),
+        'complainant',
+        'submitted',
+        'Pending',
+        'Complaint submitted by complainant.'
+    );
 
     // Insert log
     mysqli_query($conn,
