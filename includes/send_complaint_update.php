@@ -3,58 +3,97 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '../phpmailer/src/Exception.php';
-require '../phpmailer/src/PHPMailer.php';
-require '../phpmailer/src/SMTP.php';
+require_once __DIR__ . '/../phpmailer/src/Exception.php';
+require_once __DIR__ . '/../phpmailer/src/PHPMailer.php';
+require_once __DIR__ . '/../phpmailer/src/SMTP.php';
 
-function sendComplaintUpdate($email, $fullname, $subject, $status){
+function createComplaintMailer(){
+    $mail = new PHPMailer(true);
 
-$mail = new PHPMailer(true);
+    $mail->isSMTP();
+    $mail->Host = 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'argierydertz@gmail.com';
+    $mail->Password = 'xygl mvhd jfpv sjjx';
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port = 587;
+    $mail->setFrom('argierydertz@gmail.com', 'Barangay Digital Complaint System');
+    $mail->isHTML(true);
 
-try{
-
-$mail->isSMTP();
-$mail->Host = 'smtp.gmail.com';
-$mail->SMTPAuth = true;
-
-$mail->Username = 'argierydertz@gmail.com';
-$mail->Password = 'xygl mvhd jfpv sjjx';
-
-$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-$mail->Port = 587;
-
-$mail->setFrom('argierydertz@gmail.com', 'Barangay Digital Complaint System');
-
-$mail->addAddress($email);
-
-$mail->isHTML(true);
-$mail->Subject = 'Complaint Status Update';
-
-$mail->Body = "
-<h3>Complaint Status Update</h3>
-
-<p>Hello <b>$fullname</b>,</p>
-
-<p>Your complaint regarding:</p>
-
-<h3>$subject</h3>
-
-<p>Status has been updated to:</p>
-
-<h2>$status</h2>
-
-<p>Please login to the Barangay Complaint System to view details.</p>
-
-<p>Thank you.</p>
-";
-
-$mail->send();
-
-}catch(Exception $e){
-
-echo "Mailer Error: " . $mail->ErrorInfo;
-
+    return $mail;
 }
 
+function sendComplaintTimelineUpdate(
+    string $email,
+    string $fullname,
+    string $subject,
+    string $trackingNumber,
+    string $status,
+    string $message,
+    string $updatedBy,
+    ?string $buttonUrl = null
+): bool
+{
+    $mail = createComplaintMailer();
+    $safeFullname = htmlspecialchars($fullname, ENT_QUOTES, 'UTF-8');
+    $safeSubject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
+    $safeTrackingNumber = htmlspecialchars($trackingNumber, ENT_QUOTES, 'UTF-8');
+    $safeStatus = htmlspecialchars($status, ENT_QUOTES, 'UTF-8');
+    $safeMessage = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
+    $safeUpdatedBy = htmlspecialchars($updatedBy, ENT_QUOTES, 'UTF-8');
+    $complaintsUrl = $buttonUrl ?: rtrim(defined('APP_URL') ? APP_URL : 'http://localhost/barangay', '/') . '/complainant/my_complaints.php';
+    $safeComplaintsUrl = htmlspecialchars($complaintsUrl, ENT_QUOTES, 'UTF-8');
+
+    try{
+        $mail->addAddress($email);
+        $mail->Subject = "Complaint Update: $trackingNumber";
+        $mail->Body = "
+            <div style='font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;'>
+                <h2 style='margin-bottom: 8px;'>Complaint Timeline Update</h2>
+                <p>Hello <strong>$safeFullname</strong>,</p>
+                <p>A new update was added to this complaint:</p>
+
+                <div style='background: #f8fafc; border: 1px solid #dbe3ea; border-radius: 10px; padding: 16px; margin: 18px 0;'>
+                    <p style='margin: 0 0 8px;'><strong>Tracking Number:</strong> $safeTrackingNumber</p>
+                    <p style='margin: 0 0 8px;'><strong>Subject:</strong> $safeSubject</p>
+                    <p style='margin: 0 0 8px;'><strong>Status:</strong> $safeStatus</p>
+                    <p style='margin: 0;'><strong>Updated By:</strong> $safeUpdatedBy</p>
+                </div>
+
+                <p style='margin-bottom: 6px;'><strong>Update message:</strong></p>
+                <div style='background: #ffffff; border-left: 4px solid #1d4f91; padding: 12px 14px; margin-bottom: 20px;'>
+                    $safeMessage
+                </div>
+
+                <p style='margin-bottom: 20px;'>
+                    <a href='$safeComplaintsUrl' style='display: inline-block; background: #1d4f91; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: 600;'>
+                        View Complaint Timeline
+                    </a>
+                </p>
+
+                <p style='margin-bottom: 8px;'>If the button does not work, copy and paste this link into your browser:</p>
+                <p style='word-break: break-all; margin-top: 0;'><a href='$safeComplaintsUrl'>$safeComplaintsUrl</a></p>
+            </div>
+        ";
+
+        $mail->AltBody = "Hello $fullname,\n\nA new update was added to this complaint.\n\nTracking Number: $trackingNumber\nSubject: $subject\nStatus: $status\nUpdated By: $updatedBy\n\nUpdate message:\n$message\n\nView the timeline here:\n$complaintsUrl";
+        $mail->send();
+
+        return true;
+    } catch(Exception $e){
+        return false;
+    }
+}
+
+function sendComplaintUpdate($email, $fullname, $subject, $status){
+    return sendComplaintTimelineUpdate(
+        $email,
+        $fullname,
+        $subject,
+        'Complaint',
+        $status,
+        "Status has been updated to $status.",
+        'Barangay Staff'
+    );
 }
 ?>

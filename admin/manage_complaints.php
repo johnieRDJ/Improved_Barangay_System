@@ -19,13 +19,19 @@ if(isset($_POST['assign'])){
 
     $complaint_id = intval($_POST['complaint_id']);
     $staff_id = intval($_POST['staff_id']);
-    $email = $_POST['email'];
-    $fullname = $_POST['fullname'];
-    $subject = $_POST['subject'];
 
     // Check if already assigned
     $check = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT assigned_staff_id FROM complaints WHERE complaint_id='$complaint_id'"));
+    "SELECT complaints.assigned_staff_id,
+            complaints.tracking_number,
+            complaints.subject,
+            users.email,
+            users.firstname,
+            users.lastname
+     FROM complaints
+     JOIN users ON complaints.complainant_id = users.user_id
+     WHERE complaints.complaint_id='$complaint_id'
+     LIMIT 1"));
 
     if($check['assigned_staff_id']){
         $log_msg = "Updated staff assignment for complaint ID $complaint_id";
@@ -48,9 +54,6 @@ if(isset($_POST['assign'])){
          resolution_confirmation=NULL
      WHERE complaint_id='$complaint_id'");
 
-    // Send email
-    sendComplaintUpdate($email, $fullname, $subject, "In Progress");
-
     // Save log
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)
@@ -64,6 +67,17 @@ if(isset($_POST['assign'])){
         'assigned',
         'In Progress',
         "Complaint assigned to $staff_name."
+    );
+
+    $fullname = trim($check['firstname'] . ' ' . $check['lastname']);
+    sendComplaintTimelineUpdate(
+        $check['email'],
+        $fullname,
+        $check['subject'],
+        $check['tracking_number'],
+        'In Progress',
+        "Your complaint has been assigned to $staff_name for action.",
+        'Barangay Admin'
     );
 
     header("Location: manage_complaints.php");
@@ -93,8 +107,10 @@ $staff = mysqli_query($conn,
 
 <h2>Manage Complaints</h2>
 
-<table border="1" cellpadding="10" width="100%">
+<div class="table-card">
+<table border="1" cellpadding="10" width="100%" class="responsive-table admin-complaints-table">
 <tr>
+    <th>Tracking No.</th>
     <th>Complainant</th>
     <th>Subject</th>
     <th>Description</th>
@@ -106,6 +122,8 @@ $staff = mysqli_query($conn,
 <?php while($row = mysqli_fetch_assoc($result)): ?>
 
 <tr>
+
+<td><span class="tracking-number compact"><?php echo htmlspecialchars($row['tracking_number']); ?></span></td>
 
 <td><?php echo $row['fname']." ".$row['lname']; ?></td>
 
@@ -183,6 +201,7 @@ while($s = mysqli_fetch_assoc($staff)):
 <?php endwhile; ?>
 
 </table>
+</div>
 
 
 

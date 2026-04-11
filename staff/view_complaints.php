@@ -8,6 +8,7 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'staff'){
 
 include('../config/database.php');
 include('../includes/complaint_updates.php');
+include('../includes/send_complaint_update.php');
 
 $user_id = intval($_SESSION['user_id']);
 $update_error = '';
@@ -75,6 +76,17 @@ if(isset($_POST['update'])){
         $safe_comment = mysqli_real_escape_string($conn, $comment);
         $safe_status = mysqli_real_escape_string($conn, $status);
         $resolutionConfirmationValue = $status === 'Resolved' ? "'pending'" : "resolution_confirmation";
+        $complaintNotice = mysqli_fetch_assoc(mysqli_query($conn,
+        "SELECT complaints.tracking_number,
+                complaints.subject,
+                users.email,
+                users.firstname,
+                users.lastname
+         FROM complaints
+         JOIN users ON complaints.complainant_id = users.user_id
+         WHERE complaints.complaint_id='$id'
+         AND complaints.assigned_staff_id='$user_id'
+         LIMIT 1"));
 
         mysqli_query($conn,
         "UPDATE complaints
@@ -104,6 +116,28 @@ if(isset($_POST['update'])){
             mysqli_query($conn,
             "INSERT INTO logs (user_id, action)
              VALUES ('$user_id', '$log_action')");
+
+            if($complaintNotice){
+                $fullname = trim($complaintNotice['firstname'] . ' ' . $complaintNotice['lastname']);
+                $emailStatus = $status === 'Resolved'
+                    ? 'Resolved - Awaiting Your Confirmation'
+                    : $status;
+                $emailMessage = $comment;
+
+                if($status === 'Resolved'){
+                    $emailMessage .= "\n\nPlease open your complaint timeline and confirm if the issue is truly resolved.";
+                }
+
+                sendComplaintTimelineUpdate(
+                    $complaintNotice['email'],
+                    $fullname,
+                    $complaintNotice['subject'],
+                    $complaintNotice['tracking_number'],
+                    $emailStatus,
+                    $emailMessage,
+                    'Barangay Staff'
+                );
+            }
         }
 
         header("Location: view_complaints.php?updated=1");
@@ -149,6 +183,7 @@ $result = mysqli_query($conn,
         <table border="1" cellpadding="10" width="100%" class="responsive-table staff-complaints-table">
             <tr>
                 <th>Complainant</th>
+                <th>Tracking No.</th>
                 <th>Subject</th>
                 <th>Description</th>
                 <th>Status</th>
@@ -159,6 +194,7 @@ $result = mysqli_query($conn,
             <?php while($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
                     <td><?php echo htmlspecialchars(trim(($row['complainant_firstname'] ?? '') . ' ' . ($row['complainant_lastname'] ?? ''))); ?></td>
+                    <td><span class="tracking-number compact"><?php echo htmlspecialchars($row['tracking_number']); ?></span></td>
                     <td><?php echo htmlspecialchars($row['subject']); ?></td>
                     <td><?php echo htmlspecialchars($row['description']); ?></td>
                     <td>

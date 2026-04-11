@@ -8,6 +8,7 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'complainant'){
 
 include('../config/database.php');
 include('../includes/complaint_updates.php');
+include('../includes/send_complaint_update.php');
 
 $user_id = intval($_SESSION['user_id']);
 $action_error = '';
@@ -18,8 +19,16 @@ if(isset($_POST['complaint_action'])){
     $reopenNote = trim($_POST['reopen_note'] ?? '');
 
     $complaint = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT complaint_id, status, resolution_confirmation
+    "SELECT complaints.complaint_id,
+            complaints.tracking_number,
+            complaints.subject,
+            complaints.status,
+            complaints.resolution_confirmation,
+            staff.email AS staff_email,
+            staff.firstname AS staff_firstname,
+            staff.lastname AS staff_lastname
      FROM complaints
+     LEFT JOIN users staff ON complaints.assigned_staff_id = staff.user_id
      WHERE complaint_id='$complaintId'
      AND complainant_id='$user_id'
      LIMIT 1"));
@@ -49,6 +58,20 @@ if(isset($_POST['complaint_action'])){
         "INSERT INTO logs (user_id, action)
          VALUES ('$user_id', 'Confirmed resolution for complaint ID $complaintId')");
 
+        if(!empty($complaint['staff_email'])){
+            $staffName = trim($complaint['staff_firstname'] . ' ' . $complaint['staff_lastname']);
+            sendComplaintTimelineUpdate(
+                $complaint['staff_email'],
+                $staffName,
+                $complaint['subject'],
+                $complaint['tracking_number'],
+                'Resolved',
+                'The complainant confirmed that the complaint has been resolved.',
+                'Complainant',
+                rtrim(defined('APP_URL') ? APP_URL : 'http://localhost/barangay', '/') . '/staff/view_complaints.php'
+            );
+        }
+
         header("Location: my_complaints.php?confirmation=confirmed");
         exit();
     } elseif($complaintAction === 'reopen'){
@@ -77,6 +100,20 @@ if(isset($_POST['complaint_action'])){
             mysqli_query($conn,
             "INSERT INTO logs (user_id, action)
              VALUES ('$user_id', 'Reopened complaint ID $complaintId with feedback: $safeReopenNote')");
+
+            if(!empty($complaint['staff_email'])){
+                $staffName = trim($complaint['staff_firstname'] . ' ' . $complaint['staff_lastname']);
+                sendComplaintTimelineUpdate(
+                    $complaint['staff_email'],
+                    $staffName,
+                    $complaint['subject'],
+                    $complaint['tracking_number'],
+                    'In Progress - Reopened',
+                    "The complainant marked the complaint as not yet resolved.\n\nReason: $reopenNote",
+                    'Complainant',
+                    rtrim(defined('APP_URL') ? APP_URL : 'http://localhost/barangay', '/') . '/staff/view_complaints.php'
+                );
+            }
 
             header("Location: my_complaints.php?confirmation=reopened");
             exit();
@@ -151,6 +188,7 @@ while($timelineResult && $timelineRow = mysqli_fetch_assoc($timelineResult)){
                 <div class="complaint-card-header">
                     <div>
                         <h2 style="text-align:left; margin-bottom:6px;"><?php echo htmlspecialchars($row['subject']); ?></h2>
+                        <p class="tracking-number">Tracking No. <?php echo htmlspecialchars($row['tracking_number']); ?></p>
                         <p class="developer-note" style="margin-bottom:0;">Submitted on <?php echo date('F j, Y g:i A', strtotime($row['created_at'])); ?></p>
                     </div>
 

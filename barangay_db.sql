@@ -54,6 +54,7 @@ INSERT INTO `appointments` (`appointment_id`, `user_id`, `appointment_date`, `pu
 
 CREATE TABLE `complaints` (
   `complaint_id` int(11) NOT NULL,
+  `tracking_number` varchar(30) DEFAULT NULL,
   `complainant_id` int(11) DEFAULT NULL,
   `assigned_staff_id` int(11) DEFAULT NULL,
   `subject` varchar(255) DEFAULT NULL,
@@ -68,10 +69,10 @@ CREATE TABLE `complaints` (
 -- Dumping data for table `complaints`
 --
 
-INSERT INTO `complaints` (`complaint_id`, `complainant_id`, `assigned_staff_id`, `subject`, `description`, `staff_comment`, `status`, `resolution_confirmation`, `created_at`) VALUES
-(1, 2, 4, 'Ace Azcona sa Qith\'s Dorm', 'Banha kaayu sir, permig ungol kag lulu, bahog utot sir kay bulan na way libang2', 'Okay na sir ngayo daw sya pasensya.', 'Resolved', 'confirmed', '2026-03-07 08:26:30'),
-(2, 2, NULL, 'Rode', 'sigeg tagay banha kaayu rba sir tas wa nay limpyo iyang lote hugaw way panilhig', NULL, 'Pending', NULL, '2026-03-22 05:38:11'),
-(3, 2, 4, 'LJ Saavedra', 'Sag asa mo butang basiwa sa coke daghan nag case diri nanga tibulaag kay sag asa ra neya e butang, sahay sa dalan pana.', NULL, 'In Progress', NULL, '2026-03-22 15:35:56');
+INSERT INTO `complaints` (`complaint_id`, `tracking_number`, `complainant_id`, `assigned_staff_id`, `subject`, `description`, `staff_comment`, `status`, `resolution_confirmation`, `created_at`) VALUES
+(1, 'CMP-20260307-00001', 2, 4, 'Ace Azcona sa Qith\'s Dorm', 'Banha kaayu sir, permig ungol kag lulu, bahog utot sir kay bulan na way libang2', 'Okay na sir ngayo daw sya pasensya.', 'Resolved', 'confirmed', '2026-03-07 08:26:30'),
+(2, 'CMP-20260322-00002', 2, NULL, 'Rode', 'sigeg tagay banha kaayu rba sir tas wa nay limpyo iyang lote hugaw way panilhig', NULL, 'Pending', NULL, '2026-03-22 05:38:11'),
+(3, 'CMP-20260322-00003', 2, 4, 'LJ Saavedra', 'Sag asa mo butang basiwa sa coke daghan nag case diri nanga tibulaag kay sag asa ra neya e butang, sahay sa dalan pana.', NULL, 'In Progress', NULL, '2026-03-22 15:35:56');
 
 -- --------------------------------------------------------
 
@@ -441,6 +442,7 @@ ALTER TABLE `appointments`
 --
 ALTER TABLE `complaints`
   ADD PRIMARY KEY (`complaint_id`),
+  ADD UNIQUE KEY `tracking_number` (`tracking_number`),
   ADD KEY `complainant_id` (`complainant_id`),
   ADD KEY `assigned_staff_id` (`assigned_staff_id`);
 

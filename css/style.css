@@ -429,6 +429,28 @@ button:disabled {
     align-items: center;
 }
 
+.tracking-number {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 6px 10px;
+    margin: 0 0 6px;
+    border-radius: 999px;
+    background: #eef4fb;
+    color: #163a63;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.tracking-number.compact {
+    margin: 0;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+
 .complaint-status-progress {
     background: #e8f0ff;
     color: #1d4f91;
@@ -539,6 +561,7 @@ button:disabled {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
 }
 
 .complaint-confirmation-form {
@@ -555,6 +578,18 @@ button:disabled {
 .complaint-confirmation-form button {
     width: 100%;
     margin: 0;
+}
+
+.complaint-update-form input[type="file"] {
+    width: 100%;
+    min-width: 0;
+}
+
+.complaint-update-form .table-muted {
+    display: block;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
 }
 
 .table-card {
@@ -646,11 +681,12 @@ table {
 }
 
 .staff-complaints-table {
-    min-width: 1380px;
+    min-width: 1580px;
     table-layout: fixed;
 }
 
-.staff-complaints-table th {
+.staff-complaints-table th,
+.admin-complaints-table th {
     white-space: nowrap;
 }
 
@@ -662,32 +698,78 @@ table {
 
 .staff-complaints-table th:nth-child(2),
 .staff-complaints-table td:nth-child(2) {
-    width: 170px;
-    min-width: 170px;
+    width: 180px;
+    min-width: 180px;
 }
 
 .staff-complaints-table th:nth-child(3),
 .staff-complaints-table td:nth-child(3) {
-    width: 260px;
-    min-width: 260px;
-}
-
-.staff-complaints-table th:nth-child(4),
-.staff-complaints-table td:nth-child(4) {
     width: 170px;
     min-width: 170px;
 }
 
+.staff-complaints-table th:nth-child(4),
+.staff-complaints-table td:nth-child(4) {
+    width: 260px;
+    min-width: 260px;
+}
+
 .staff-complaints-table th:nth-child(5),
 .staff-complaints-table td:nth-child(5) {
-    width: 220px;
-    min-width: 220px;
+    width: 170px;
+    min-width: 170px;
 }
 
 .staff-complaints-table th:nth-child(6),
 .staff-complaints-table td:nth-child(6) {
+    width: 220px;
+    min-width: 220px;
+}
+
+.staff-complaints-table th:nth-child(7),
+.staff-complaints-table td:nth-child(7) {
     width: 410px;
     min-width: 410px;
+}
+
+.admin-complaints-table {
+    min-width: 1400px;
+    table-layout: fixed;
+}
+
+.admin-complaints-table th:nth-child(1),
+.admin-complaints-table td:nth-child(1) {
+    width: 180px;
+}
+
+.admin-complaints-table th:nth-child(2),
+.admin-complaints-table td:nth-child(2) {
+    width: 180px;
+}
+
+.admin-complaints-table th:nth-child(3),
+.admin-complaints-table td:nth-child(3) {
+    width: 190px;
+}
+
+.admin-complaints-table th:nth-child(4),
+.admin-complaints-table td:nth-child(4) {
+    width: 300px;
+}
+
+.admin-complaints-table th:nth-child(5),
+.admin-complaints-table td:nth-child(5) {
+    width: 190px;
+}
+
+.admin-complaints-table th:nth-child(6),
+.admin-complaints-table td:nth-child(6) {
+    width: 180px;
+}
+
+.admin-complaints-table th:nth-child(7),
+.admin-complaints-table td:nth-child(7) {
+    width: 280px;
 }
 
 .users-table th,

@@ -26,6 +26,13 @@ if(isset($_POST['submit'])){
      VALUES ('$user_id','$subject','$description')");
 
     $complaint_id = mysqli_insert_id($conn);
+    $tracking_number = 'CMP-' . date('Ymd') . '-' . str_pad((string)$complaint_id, 5, '0', STR_PAD_LEFT);
+    $safe_tracking_number = mysqli_real_escape_string($conn, $tracking_number);
+
+    mysqli_query($conn,
+    "UPDATE complaints
+     SET tracking_number='$safe_tracking_number'
+     WHERE complaint_id='$complaint_id'");
 
     addComplaintUpdate(
         $conn,
@@ -40,10 +47,10 @@ if(isset($_POST['submit'])){
     // Insert log
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)
-     VALUES ('$user_id','Created a complaint')");
+     VALUES ('$user_id','Created complaint $safe_tracking_number')");
 
     echo "<script>
-    alert('Complaint Submitted!');
+    alert('Complaint Submitted! Tracking Number: $safe_tracking_number');
     window.location='my_complaints.php';
     </script>";
 }

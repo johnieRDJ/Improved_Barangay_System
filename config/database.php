@@ -27,6 +27,21 @@ if (!$conn) {
 
 mysqli_query($conn, "SET time_zone = '+08:00'");
 
+$complaintTrackingColumn = mysqli_query($conn, "SHOW COLUMNS FROM complaints LIKE 'tracking_number'");
+if($complaintTrackingColumn instanceof mysqli_result && mysqli_num_rows($complaintTrackingColumn) === 0){
+    mysqli_query($conn, "ALTER TABLE complaints ADD COLUMN tracking_number VARCHAR(30) DEFAULT NULL AFTER complaint_id");
+}
+
+mysqli_query($conn, "UPDATE complaints
+SET tracking_number = CONCAT('CMP-', DATE_FORMAT(created_at, '%Y%m%d'), '-', LPAD(complaint_id, 5, '0'))
+WHERE tracking_number IS NULL
+OR tracking_number = ''");
+
+$complaintTrackingIndex = mysqli_query($conn, "SHOW INDEX FROM complaints WHERE Key_name='tracking_number'");
+if($complaintTrackingIndex instanceof mysqli_result && mysqli_num_rows($complaintTrackingIndex) === 0){
+    mysqli_query($conn, "ALTER TABLE complaints ADD UNIQUE KEY tracking_number (tracking_number)");
+}
+
 $complaintResolutionColumn = mysqli_query($conn, "SHOW COLUMNS FROM complaints LIKE 'resolution_confirmation'");
 if($complaintResolutionColumn instanceof mysqli_result && mysqli_num_rows($complaintResolutionColumn) === 0){
     mysqli_query($conn, "ALTER TABLE complaints ADD COLUMN resolution_confirmation ENUM('pending','confirmed','reopened') DEFAULT NULL AFTER status");
