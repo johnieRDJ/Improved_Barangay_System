@@ -1,33 +1,13 @@
 <?php
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require '../phpmailer/src/Exception.php';
-require '../phpmailer/src/PHPMailer.php';
-require '../phpmailer/src/SMTP.php';
+require_once __DIR__ . '/mailer.php';
 
 function sendResidencySchedule($email, $fullname, $schedule){
 
-$mail = new PHPMailer(true);
+$mail = createBarangayMailer();
 
 try{
 
-$mail->isSMTP();
-$mail->Host = 'smtp.gmail.com';
-$mail->SMTPAuth = true;
-
-$mail->Username = 'argierydertz@gmail.com';
-$mail->Password = 'xygl mvhd jfpv sjjx';
-
-$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-$mail->Port = 587;
-
-$mail->setFrom('argierydertz@gmail.com', 'Barangay Digital Complaint System');
-
 $mail->addAddress($email);
-
-$mail->isHTML(true);
 $mail->Subject = 'Barangay Residency Appointment Schedule';
 
 $mail->Body = "
@@ -49,7 +29,7 @@ $mail->Body = "
 
 $mail->send();
 
-}catch(Exception $e){
+}catch(Throwable $e){
 
 echo "Mailer Error: " . $mail->ErrorInfo;
 

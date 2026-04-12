@@ -1,28 +1,5 @@
 <?php
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once '../phpmailer/src/Exception.php';
-require_once '../phpmailer/src/PHPMailer.php';
-require_once '../phpmailer/src/SMTP.php';
-
-function createBarangayMailer(){
-
-    $mail = new PHPMailer(true);
-
-    $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username   = 'argierydertz@gmail.com';
-    $mail->Password   = 'xygl mvhd jfpv sjjx';
-    $mail->SMTPSecure = 'tls';
-    $mail->Port       = 587;
-    $mail->setFrom('argierydertz@gmail.com', 'Barangay Digital Complaint System');
-    $mail->isHTML(true);
-
-    return $mail;
-}
+require_once __DIR__ . '/mailer.php';
 
 function sendOTP($email, $content){
 
@@ -32,7 +9,7 @@ function sendOTP($email, $content){
 
         $mail->addAddress($email);
 
-        // 🔥 Detect if OTP or message
+        // Detect if OTP or message
         if(is_numeric($content)){
             $verifyOtpLink = rtrim(defined('APP_URL') ? APP_URL : 'http://localhost/barangay', '/') . '/auth/verify_otp.php';
             $safeVerifyOtpLink = htmlspecialchars($verifyOtpLink, ENT_QUOTES, 'UTF-8');
@@ -64,7 +41,7 @@ function sendOTP($email, $content){
 
         $mail->send();
 
-    } catch (Exception $e){
+    } catch (Throwable $e){
         echo "Mailer Error: " . $mail->ErrorInfo;
     }
 
@@ -116,7 +93,7 @@ function sendRegistrationVerificationEmail($email, $fullname, $role, $verificati
 
         $mail->send();
 
-    } catch (Exception $e){
+    } catch (Throwable $e){
         echo "Mailer Error: " . $mail->ErrorInfo;
     }
 }

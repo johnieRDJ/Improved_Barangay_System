@@ -1,25 +1,12 @@
 <?php
-$configuredAppUrl = '';
-// Example for phone or LAN testing:
-// $configuredAppUrl = 'http://192.168.1.10/barangay';
+require_once __DIR__ . '/app.php';
 
-date_default_timezone_set('Asia/Manila');
-
-if(!defined('APP_URL')){
-    if($configuredAppUrl !== ''){
-        define('APP_URL', rtrim($configuredAppUrl, '/'));
-    } elseif(!empty($_SERVER['HTTP_HOST'])){
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $scriptPath = str_replace('\\', '/', dirname(dirname($_SERVER['SCRIPT_NAME'] ?? '')));
-        $basePath = ($scriptPath === '/' || $scriptPath === '.') ? '' : rtrim($scriptPath, '/');
-        define('APP_URL', $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath);
-    } else {
-        // CLI/local fallback
-        define('APP_URL', 'http://localhost/barangay');
-    }
-}
-
-$conn = mysqli_connect("localhost", "root", "", "barangay_db");
+$conn = mysqli_connect(
+    app_config('database.host', 'localhost'),
+    app_config('database.username', 'root'),
+    app_config('database.password', ''),
+    app_config('database.name', 'barangay_db')
+);
 
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());

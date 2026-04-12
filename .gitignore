@@ -1,0 +1,4 @@
+config/env.php
+*.tmp
+uploads/complaint_proofs/*
+uploads/profile/*

@@ -1,35 +1,17 @@
 <?php
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once '../phpmailer/src/Exception.php';
-require_once '../phpmailer/src/PHPMailer.php';
-require_once '../phpmailer/src/SMTP.php';
+require_once __DIR__ . '/mailer.php';
 
 function sendResetLink($email, $fullname, $token){
 
-    $mail = new PHPMailer(true);
+    $mail = createBarangayMailer();
     $safeFullname = htmlspecialchars($fullname, ENT_QUOTES, 'UTF-8');
     $safeEmail = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
     $link = rtrim(APP_URL, '/') . "/auth/reset_password.php?token=" . urlencode($token);
 
     try{
 
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'argierydertz@gmail.com';
-        $mail->Password   = 'xygl mvhd jfpv sjjx';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port       = 587;
-
-        $mail->setFrom('argierydertz@gmail.com', 'Barangay Digital Complaint System');
         $mail->addAddress($email);
 
-        // 🔴 CHANGE THIS IF ONLINE (IMPORTANT)
-
-        $mail->isHTML(true);
         $mail->Subject = 'Password Reset Request';
 
         $mail->Body = "
@@ -56,7 +38,7 @@ function sendResetLink($email, $fullname, $token){
 
         $mail->send();
 
-    } catch (Exception $e){
+    } catch (Throwable $e){
         echo "Mailer Error: " . $mail->ErrorInfo;
     }
 }

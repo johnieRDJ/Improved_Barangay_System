@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 10, 2026 at 07:14 PM
+-- Generation Time: Apr 12, 2026 at 07:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -275,7 +275,14 @@ INSERT INTO `logs` (`log_id`, `user_id`, `action`, `log_time`) VALUES
 (129, 4, 'Opened staff dashboard', '2026-04-10 16:59:28'),
 (130, 4, 'Viewed assigned complaints', '2026-04-10 16:59:31'),
 (131, 4, 'Viewed assigned complaints', '2026-04-10 17:04:02'),
-(132, 4, 'Opened staff dashboard', '2026-04-10 17:07:29');
+(132, 4, 'Opened staff dashboard', '2026-04-10 17:07:29'),
+(133, 2, 'Logged in successfully with 2FA', '2026-04-10 17:21:01'),
+(134, 4, 'Logged in successfully with 2FA', '2026-04-11 10:34:30'),
+(135, 4, 'Opened staff dashboard', '2026-04-11 10:34:30'),
+(136, 4, 'Viewed assigned complaints', '2026-04-11 10:34:32'),
+(137, 4, 'Viewed assigned complaints', '2026-04-11 10:38:08'),
+(138, 1, 'Logged in successfully with 2FA', '2026-04-11 10:43:59'),
+(139, 2, 'Logged in successfully with 2FA', '2026-04-11 10:45:33');
 
 -- --------------------------------------------------------
 
@@ -535,7 +542,7 @@ ALTER TABLE `developer_profile`
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
 
 --
 -- AUTO_INCREMENT for table `password_resets`

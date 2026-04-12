@@ -1,26 +1,8 @@
 <?php
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once __DIR__ . '/../phpmailer/src/Exception.php';
-require_once __DIR__ . '/../phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/../phpmailer/src/SMTP.php';
+require_once __DIR__ . '/mailer.php';
 
 function createComplaintMailer(){
-    $mail = new PHPMailer(true);
-
-    $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';
-    $mail->SMTPAuth = true;
-    $mail->Username = 'argierydertz@gmail.com';
-    $mail->Password = 'xygl mvhd jfpv sjjx';
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port = 587;
-    $mail->setFrom('argierydertz@gmail.com', 'Barangay Digital Complaint System');
-    $mail->isHTML(true);
-
-    return $mail;
+    return createBarangayMailer();
 }
 
 function sendComplaintTimelineUpdate(
@@ -80,7 +62,7 @@ function sendComplaintTimelineUpdate(
         $mail->send();
 
         return true;
-    } catch(Exception $e){
+    } catch(Throwable $e){
         return false;
     }
 }
