@@ -7,8 +7,6 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'superadmin'){
 }
 
 include('../config/database.php');
-include('../includes/header.php');
-include('../includes/sidebar.php');
 
 if(!isset($_GET['id'])){
     header("Location: manage_admins.php");
@@ -17,8 +15,10 @@ if(!isset($_GET['id'])){
 
 $id = intval($_GET['id']);
 
-$user = mysqli_fetch_assoc(mysqli_query($conn,
-"SELECT * FROM users WHERE user_id='$id' AND role='admin'"));
+$user = db_select_one($conn,
+"SELECT * FROM users WHERE user_id=? AND role='admin' LIMIT 1",
+'i',
+[$id]);
 
 if(!$user){
     header("Location: manage_admins.php");
@@ -27,31 +27,39 @@ if(!$user){
 
 if(isset($_POST['save'])){
 
-    $fname = $_POST['firstname'];
-    $lname = $_POST['lastname'];
-    $email = $_POST['email'];
+    $fname = trim($_POST['firstname'] ?? '');
+    $lname = trim($_POST['lastname'] ?? '');
+    $email = trim($_POST['email'] ?? '');
 
-    mysqli_query($conn,
+    db_execute($conn,
     "UPDATE users SET
-     firstname='$fname',
-     lastname='$lname',
-     email='$email'
-     WHERE user_id='$id' AND role='admin'");
+     firstname=?,
+     lastname=?,
+     email=?
+     WHERE user_id=? AND role='admin'",
+     'sssi',
+     [$fname, $lname, $email, $id]);
 
-    mysqli_query($conn,
+    db_execute($conn,
     "INSERT INTO logs (user_id, action)
-     VALUES ('".$_SESSION['user_id']."','Updated admin ID $id')");
+     VALUES (?, ?)",
+     'is',
+     [intval($_SESSION['user_id']), "Updated admin ID $id"]);
 
     header("Location: manage_admins.php");
+    exit();
 }
+
+include('../includes/header.php');
+include('../includes/sidebar.php');
 ?>
 
 <h2>Edit Admin</h2>
 
 <form method="POST">
-<input type="text" name="firstname" value="<?php echo $user['firstname']; ?>"><br><br>
-<input type="text" name="lastname" value="<?php echo $user['lastname']; ?>"><br><br>
-<input type="email" name="email" value="<?php echo $user['email']; ?>"><br><br>
+<input type="text" name="firstname" value="<?php echo htmlspecialchars($user['firstname']); ?>"><br><br>
+<input type="text" name="lastname" value="<?php echo htmlspecialchars($user['lastname']); ?>"><br><br>
+<input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>"><br><br>
 
 <button name="save">Save Changes</button>
 </form>

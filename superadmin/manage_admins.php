@@ -7,25 +7,31 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'superadmin'){
 }
 
 include('../config/database.php');
-include('../includes/header.php');
-include('../includes/sidebar.php');
 
 // DELETE ADMIN
 if(isset($_GET['delete'])){
     $id = intval($_GET['delete']);
 
-    mysqli_query($conn,"DELETE FROM users WHERE user_id='$id' AND role='admin'");
+    db_execute($conn,
+    "DELETE FROM users WHERE user_id=? AND role='admin'",
+    'i',
+    [$id]);
 
-    mysqli_query($conn,
+    db_execute($conn,
     "INSERT INTO logs (user_id, action)
-     VALUES ('".$_SESSION['user_id']."','Deleted admin ID $id')");
+     VALUES (?, ?)",
+     'is',
+     [intval($_SESSION['user_id']), "Deleted admin ID $id"]);
 
     header("Location: manage_admins.php");
     exit();
 }
 
-$result = mysqli_query($conn,
+$admins = db_select_all($conn,
 "SELECT * FROM users WHERE role='admin'");
+
+include('../includes/header.php');
+include('../includes/sidebar.php');
 ?>
 
 <h2>Manage Admins</h2>
@@ -40,12 +46,12 @@ $result = mysqli_query($conn,
     <th>Action</th>
 </tr>
 
-<?php while($row = mysqli_fetch_assoc($result)): ?>
+<?php foreach($admins as $row): ?>
 <tr>
 
-<td><?php echo $row['firstname']." ".$row['lastname']; ?></td>
-<td><?php echo $row['email']; ?></td>
-<td><?php echo $row['account_status']; ?></td>
+<td><?php echo htmlspecialchars($row['firstname']." ".$row['lastname']); ?></td>
+<td><?php echo htmlspecialchars($row['email']); ?></td>
+<td><?php echo htmlspecialchars($row['account_status']); ?></td>
 
 <td>
 <a href="edit_admin.php?id=<?php echo $row['user_id']; ?>">Edit</a> |
@@ -53,7 +59,7 @@ $result = mysqli_query($conn,
 </td>
 
 </tr>
-<?php endwhile; ?>
+<?php endforeach; ?>
 </table>
 
 <?php include('../includes/footer.php'); ?>

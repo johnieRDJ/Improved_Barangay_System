@@ -10,7 +10,7 @@ include('../config/database.php');
 include('../includes/sidebar.php');
 
 // Join logs with users to get fullname
-$result = mysqli_query($conn,
+$logs = db_select_all($conn,
 "SELECT logs.*, CONCAT(users.firstname,' ',users.lastname) AS fullname
  FROM logs
  JOIN users ON logs.user_id = users.user_id
@@ -26,13 +26,13 @@ $result = mysqli_query($conn,
     <th>Date & Time</th>
 </tr>
 
-<?php while($row = mysqli_fetch_assoc($result)): ?>
+<?php foreach($logs as $row): ?>
 <tr>
-    <td><?php echo $row['fullname']; ?></td>
-    <td><?php echo $row['action']; ?></td>
-    <td><?php echo $row['log_time']; ?></td>
+    <td><?php echo htmlspecialchars($row['fullname']); ?></td>
+    <td><?php echo htmlspecialchars($row['action']); ?></td>
+    <td><?php echo htmlspecialchars($row['log_time']); ?></td>
 </tr>
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </table>
 

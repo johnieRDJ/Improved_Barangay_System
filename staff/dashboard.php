@@ -9,26 +9,37 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'staff'){
 include('../config/database.php');
 include('../includes/sidebar.php');
 
-$user_id = $_SESSION['user_id'];
+$user_id = intval($_SESSION['user_id']);
 
 //  LOG: Staff opened dashboard
-mysqli_query($conn,
+db_execute($conn,
 "INSERT INTO logs (user_id, action)
- VALUES ('$user_id','Opened staff dashboard')");
+ VALUES (?, ?)",
+ 'is',
+ [$user_id, 'Opened staff dashboard']);
 
-$total_assigned = mysqli_fetch_assoc(mysqli_query($conn,
+$totalRow = db_select_one($conn,
 "SELECT COUNT(*) as total FROM complaints 
- WHERE assigned_staff_id='$user_id'"))['total'];
+ WHERE assigned_staff_id=?",
+ 'i',
+ [$user_id]);
+$total_assigned = $totalRow['total'] ?? 0;
 
-$in_progress = mysqli_fetch_assoc(mysqli_query($conn,
+$progressRow = db_select_one($conn,
 "SELECT COUNT(*) as total FROM complaints 
- WHERE assigned_staff_id='$user_id' 
- AND status='in_progress'"))['total'];
+ WHERE assigned_staff_id=?
+ AND status='In Progress'",
+ 'i',
+ [$user_id]);
+$in_progress = $progressRow['total'] ?? 0;
 
-$resolved = mysqli_fetch_assoc(mysqli_query($conn,
+$resolvedRow = db_select_one($conn,
 "SELECT COUNT(*) as total FROM complaints 
- WHERE assigned_staff_id='$user_id' 
- AND status='resolved'"))['total'];
+ WHERE assigned_staff_id=?
+ AND status='Resolved'",
+ 'i',
+ [$user_id]);
+$resolved = $resolvedRow['total'] ?? 0;
 ?>
 
 <div class="dashboard-wrapper page-shell">

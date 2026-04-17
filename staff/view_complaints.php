@@ -73,10 +73,8 @@ if(isset($_POST['update'])){
     }
 
     if($update_error === ''){
-        $safe_comment = mysqli_real_escape_string($conn, $comment);
-        $safe_status = mysqli_real_escape_string($conn, $status);
-        $resolutionConfirmationValue = $status === 'Resolved' ? "'pending'" : "resolution_confirmation";
-        $complaintNotice = mysqli_fetch_assoc(mysqli_query($conn,
+        $resolutionConfirmationValue = $status === 'Resolved' ? 'pending' : null;
+        $complaintNotice = db_select_one($conn,
         "SELECT complaints.tracking_number,
                 complaints.subject,
                 users.email,
@@ -84,19 +82,40 @@ if(isset($_POST['update'])){
                 users.lastname
          FROM complaints
          JOIN users ON complaints.complainant_id = users.user_id
-         WHERE complaints.complaint_id='$id'
-         AND complaints.assigned_staff_id='$user_id'
-         LIMIT 1"));
+         WHERE complaints.complaint_id=?
+         AND complaints.assigned_staff_id=?
+         LIMIT 1",
+         'ii',
+         [$id, $user_id]);
 
-        mysqli_query($conn,
-        "UPDATE complaints
-         SET status='$safe_status',
-             staff_comment='$safe_comment',
-             resolution_confirmation=$resolutionConfirmationValue
-         WHERE complaint_id='$id'
-         AND assigned_staff_id='$user_id'");
+        if($status === 'Resolved'){
+            $stmt = db_prepared_query($conn,
+            "UPDATE complaints
+             SET status=?,
+                 staff_comment=?,
+                 resolution_confirmation=?
+             WHERE complaint_id=?
+             AND assigned_staff_id=?",
+             'sssii',
+             [$status, $comment, $resolutionConfirmationValue, $id, $user_id]);
+        } else {
+            $stmt = db_prepared_query($conn,
+            "UPDATE complaints
+             SET status=?,
+                 staff_comment=?,
+                 resolution_confirmation=resolution_confirmation
+             WHERE complaint_id=?
+             AND assigned_staff_id=?",
+             'ssii',
+             [$status, $comment, $id, $user_id]);
+        }
 
-        if(mysqli_affected_rows($conn) > 0){
+        $updated = $stmt ? mysqli_stmt_affected_rows($stmt) : 0;
+        if($stmt){
+            mysqli_stmt_close($stmt);
+        }
+
+        if($updated > 0){
             addComplaintUpdate(
                 $conn,
                 $id,
@@ -113,9 +132,11 @@ if(isset($_POST['update'])){
                 ? "Resolved complaint ID $id and added comment"
                 : "Updated complaint ID $id with progress remarks";
 
-            mysqli_query($conn,
+            db_execute($conn,
             "INSERT INTO logs (user_id, action)
-             VALUES ('$user_id', '$log_action')");
+             VALUES (?, ?)",
+             'is',
+             [$user_id, $log_action]);
 
             if($complaintNotice){
                 $fullname = trim($complaintNotice['firstname'] . ' ' . $complaintNotice['lastname']);
@@ -149,16 +170,20 @@ include('../includes/header.php');
 include('../includes/sidebar.php');
 
 //  LOG: Viewed assigned complaints
-mysqli_query($conn,
+db_execute($conn,
 "INSERT INTO logs (user_id, action)
- VALUES ('$user_id','Viewed assigned complaints')");
+ VALUES (?, ?)",
+ 'is',
+ [$user_id, 'Viewed assigned complaints']);
 
-$result = mysqli_query($conn,
+$complaints = db_select_all($conn,
 "SELECT complaints.*, u.firstname AS complainant_firstname, u.lastname AS complainant_lastname
  FROM complaints
  LEFT JOIN users u ON complaints.complainant_id = u.user_id
- WHERE complaints.assigned_staff_id='$user_id'
- ORDER BY complaints.complaint_id DESC");
+ WHERE complaints.assigned_staff_id=?
+ ORDER BY complaints.complaint_id DESC",
+ 'i',
+ [$user_id]);
 ?>
 
 <div class="page-shell">
@@ -191,7 +216,7 @@ $result = mysqli_query($conn,
                 <th>Action</th>
             </tr>
 
-            <?php while($row = mysqli_fetch_assoc($result)): ?>
+            <?php foreach($complaints as $row): ?>
                 <tr>
                     <td><?php echo htmlspecialchars(trim(($row['complainant_firstname'] ?? '') . ' ' . ($row['complainant_lastname'] ?? ''))); ?></td>
                     <td><span class="tracking-number compact"><?php echo htmlspecialchars($row['tracking_number']); ?></span></td>
@@ -234,35 +259,10 @@ $result = mysqli_query($conn,
                         <?php endif; ?>
                     </td>
                 </tr>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
         </table>
     </div>
 </div>
-
-<?php
-if(false && isset($_POST['update'])){
-
-    $id = $_POST['complaint_id'];
-    $comment = mysqli_real_escape_string($conn, $_POST['comment']);
-
-    mysqli_query($conn,
-    "UPDATE complaints
-     SET status='Resolved',
-         staff_comment='$comment'
-     WHERE complaint_id='$id'");
-
-    //  LOG: Detailed action
-    mysqli_query($conn,
-    "INSERT INTO logs (user_id, action)
-     VALUES ('$user_id',
-     'Resolved complaint ID $id and added comment')");
-
-    echo "<script>
-    alert('Complaint updated!');
-    window.location='view_complaints.php';
-    </script>";
-}
-?>
 
 <?php include('../includes/footer.php'); ?>
 

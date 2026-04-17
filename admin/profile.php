@@ -10,17 +10,21 @@ include('../config/database.php');
 include('../includes/header.php');
 include('../includes/sidebar.php');
 
-$user_id = $_SESSION['user_id'];
+$user_id = intval($_SESSION['user_id']);
 
 /* ============================
    ENSURE PROFILE EXISTS
 ============================ */
-$check = mysqli_query($conn,
-"SELECT * FROM user_profiles WHERE user_id='$user_id'");
+$check = db_select_one($conn,
+"SELECT profile_id FROM user_profiles WHERE user_id=? LIMIT 1",
+'i',
+[$user_id]);
 
-if(mysqli_num_rows($check) == 0){
-    mysqli_query($conn,
-    "INSERT INTO user_profiles (user_id) VALUES ('$user_id')");
+if(!$check){
+    db_execute($conn,
+    "INSERT INTO user_profiles (user_id) VALUES (?)",
+    'i',
+    [$user_id]);
 }
 
 /* ============================
@@ -28,16 +32,18 @@ if(mysqli_num_rows($check) == 0){
 ============================ */
 if(isset($_POST['save'])){
 
-    $address = mysqli_real_escape_string($conn, $_POST['address']);
-    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
-    $about = mysqli_real_escape_string($conn, $_POST['about']);
+    $address = trim($_POST['address'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $about = trim($_POST['about'] ?? '');
 
-    mysqli_query($conn,
+    db_execute($conn,
     "UPDATE user_profiles 
-     SET address='$address',
-         phone='$phone',
-         about='$about'
-     WHERE user_id='$user_id'");
+     SET address=?,
+         phone=?,
+         about=?
+     WHERE user_id=?",
+     'sssi',
+     [$address, $phone, $about, $user_id]);
 }
 
 /* ============================
@@ -45,16 +51,18 @@ if(isset($_POST['save'])){
 ============================ */
 if(isset($_POST['upload'])){
 
-    $image = $_FILES['image']['name'];
+    $image = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($_FILES['image']['name']));
     $tmp = $_FILES['image']['tmp_name'];
 
     $path = "../uploads/profile/" . $image;
 
     move_uploaded_file($tmp, $path);
 
-    mysqli_query($conn,
-    "UPDATE user_profiles SET profile_image='$image'
-     WHERE user_id='$user_id'");
+    db_execute($conn,
+    "UPDATE user_profiles SET profile_image=?
+     WHERE user_id=?",
+     'si',
+     [$image, $user_id]);
 }
 
 /* ============================
@@ -62,27 +70,34 @@ if(isset($_POST['upload'])){
 ============================ */
 if(isset($_POST['delete'])){
 
-    $get = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT profile_image FROM user_profiles WHERE user_id='$user_id'"));
+    $get = db_select_one($conn,
+    "SELECT profile_image FROM user_profiles WHERE user_id=? LIMIT 1",
+    'i',
+    [$user_id]);
 
     if($get['profile_image']){
         unlink("../uploads/profile/".$get['profile_image']);
     }
 
-    mysqli_query($conn,
+    db_execute($conn,
     "UPDATE user_profiles SET profile_image=NULL
-     WHERE user_id='$user_id'");
+     WHERE user_id=?",
+     'i',
+     [$user_id]);
 }
 
 /* ============================
     GET USER DATA
 ============================ */
-$user = mysqli_fetch_assoc(mysqli_query($conn,
+$user = db_select_one($conn,
 "SELECT u.firstname, u.lastname, u.email,
         p.address, p.phone, p.about, p.profile_image
  FROM users u
  LEFT JOIN user_profiles p ON u.user_id = p.user_id
- WHERE u.user_id='$user_id'"));
+ WHERE u.user_id=?
+ LIMIT 1",
+ 'i',
+ [$user_id]);
 ?>
 
 <h2>My Profile</h2>
@@ -91,7 +106,7 @@ $user = mysqli_fetch_assoc(mysqli_query($conn,
 
 <!--  PROFILE IMAGE -->
 <?php if($user['profile_image']): ?>
-    <img src="../uploads/profile/<?php echo $user['profile_image']; ?>" width="150"><br><br>
+    <img src="../uploads/profile/<?php echo htmlspecialchars($user['profile_image']); ?>" width="150"><br><br>
 <?php else: ?>
     <p>No Image</p>
 <?php endif; ?>
@@ -112,19 +127,19 @@ $user = mysqli_fetch_assoc(mysqli_query($conn,
 <hr>
 
 <!--  USER INFO -->
-<p><strong>Name:</strong> <?php echo $user['firstname']." ".$user['lastname']; ?></p>
-<p><strong>Email:</strong> <?php echo $user['email']; ?></p>
+<p><strong>Name:</strong> <?php echo htmlspecialchars($user['firstname']." ".$user['lastname']); ?></p>
+<p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
 
 <!--  EDIT PROFILE -->
 <form method="POST">
 
     <input type="text" name="address" placeholder="Address"
-    value="<?php echo $user['address']; ?>"><br><br>
+    value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>"><br><br>
 
     <input type="text" name="phone" placeholder="Phone Number"
-    value="<?php echo $user['phone']; ?>"><br><br>
+    value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"><br><br>
 
-    <textarea name="about" placeholder="About you"><?php echo $user['about']; ?></textarea><br><br>
+    <textarea name="about" placeholder="About you"><?php echo htmlspecialchars($user['about'] ?? ''); ?></textarea><br><br>
 
     <button name="save">Save Profile</button>
 

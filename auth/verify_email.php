@@ -7,23 +7,25 @@ $details = 'Please use the latest verification email or register again if needed
 
 if(isset($_GET['token'])){
 
-    $token = mysqli_real_escape_string($conn, $_GET['token']);
+    $token = $_GET['token'];
 
-    $result = mysqli_query($conn,
+    $user = db_select_one($conn,
     "SELECT user_auth.user_id, users.firstname, users.lastname
      FROM user_auth
      INNER JOIN users ON users.user_id = user_auth.user_id
-     WHERE user_auth.verification_token='$token'
-     LIMIT 1");
+     WHERE user_auth.verification_token=?
+     LIMIT 1",
+     's',
+     [$token]);
 
-    if(mysqli_num_rows($result) > 0){
+    if($user){
 
-        $user = mysqli_fetch_assoc($result);
-
-        mysqli_query($conn,
+        db_execute($conn,
         "UPDATE user_auth
          SET email_verified=1, verification_token=NULL
-         WHERE verification_token='$token'");
+         WHERE verification_token=?",
+         's',
+         [$token]);
 
         $fullname = trim($user['firstname'] . ' ' . $user['lastname']);
         $page_title = 'Email Verified';

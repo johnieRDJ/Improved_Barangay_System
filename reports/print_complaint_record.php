@@ -18,11 +18,17 @@ $complaint = null;
 $timeline = [];
 
 if($complaint_id > 0){
-    $accessCondition = $role === 'staff'
-        ? "AND complaints.assigned_staff_id='$user_id'"
-        : "";
+    $types = 'i';
+    $params = [$complaint_id];
+    $accessCondition = "";
 
-    $result = mysqli_query($conn,
+    if($role === 'staff'){
+        $accessCondition = "AND complaints.assigned_staff_id=?";
+        $types .= 'i';
+        $params[] = $user_id;
+    }
+
+    $complaint = db_select_one($conn,
     "SELECT complaints.complaint_id,
             complaints.tracking_number,
             complaints.subject,
@@ -44,37 +50,36 @@ if($complaint_id > 0){
      INNER JOIN users complainant ON complaints.complainant_id = complainant.user_id
      LEFT JOIN user_profiles complainant_profile ON complainant.user_id = complainant_profile.user_id
      LEFT JOIN users staff ON complaints.assigned_staff_id = staff.user_id
-     WHERE complaints.complaint_id='$complaint_id'
+     WHERE complaints.complaint_id=?
      $accessCondition
-     LIMIT 1");
-
-    if($result){
-        $complaint = mysqli_fetch_assoc($result);
-    }
+     LIMIT 1",
+     $types,
+     $params);
 
     if($complaint){
-        $timelineResult = mysqli_query($conn,
+        $timeline = db_select_all($conn,
         "SELECT complaint_updates.*,
                 users.firstname,
                 users.lastname
          FROM complaint_updates
          LEFT JOIN users ON complaint_updates.actor_user_id = users.user_id
-         WHERE complaint_updates.complaint_id='$complaint_id'
-         ORDER BY complaint_updates.created_at ASC, complaint_updates.update_id ASC");
+         WHERE complaint_updates.complaint_id=?
+         ORDER BY complaint_updates.created_at ASC, complaint_updates.update_id ASC",
+         'i',
+         [$complaint_id]);
 
-        while($timelineResult && $row = mysqli_fetch_assoc($timelineResult)){
-            $timeline[] = $row;
-        }
-
-        mysqli_query($conn,
+        db_execute($conn,
         "INSERT INTO logs (user_id, action)
-         VALUES ('$user_id', 'Generated printable complaint record for complaint ID $complaint_id')");
+         VALUES (?, ?)",
+         'is',
+         [$user_id, "Generated printable complaint record for complaint ID $complaint_id"]);
     }
 }
 
-$preparedByResult = mysqli_query($conn,
-"SELECT firstname, lastname FROM users WHERE user_id='$user_id' LIMIT 1");
-$preparedBy = $preparedByResult ? mysqli_fetch_assoc($preparedByResult) : null;
+$preparedBy = db_select_one($conn,
+"SELECT firstname, lastname FROM users WHERE user_id=? LIMIT 1",
+'i',
+[$user_id]);
 $preparedByName = $preparedBy ? trim($preparedBy['firstname'] . ' ' . $preparedBy['lastname']) : ucfirst($role);
 
 include('../includes/header.php');

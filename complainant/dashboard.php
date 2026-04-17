@@ -9,21 +9,30 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'complainant'){
 include('../config/database.php');
 include('../includes/sidebar.php');
 
-$user_id = $_SESSION['user_id'];
+$user_id = intval($_SESSION['user_id']);
 
-$total = mysqli_fetch_assoc(mysqli_query($conn,
+$totalRow = db_select_one($conn,
 "SELECT COUNT(*) as total FROM complaints 
- WHERE complainant_id='$user_id'"))['total'];
+ WHERE complainant_id=?",
+ 'i',
+ [$user_id]);
+$total = $totalRow['total'] ?? 0;
 
-$pending = mysqli_fetch_assoc(mysqli_query($conn,
+$pendingRow = db_select_one($conn,
 "SELECT COUNT(*) as total FROM complaints 
- WHERE complainant_id='$user_id'
- AND status='pending'"))['total'];
+ WHERE complainant_id=?
+ AND status='Pending'",
+ 'i',
+ [$user_id]);
+$pending = $pendingRow['total'] ?? 0;
 
-$resolved = mysqli_fetch_assoc(mysqli_query($conn,
+$resolvedRow = db_select_one($conn,
 "SELECT COUNT(*) as total FROM complaints 
- WHERE complainant_id='$user_id'
- AND status='resolved'"))['total'];
+ WHERE complainant_id=?
+ AND status='Resolved'",
+ 'i',
+ [$user_id]);
+$resolved = $resolvedRow['total'] ?? 0;
 
 ?>
 

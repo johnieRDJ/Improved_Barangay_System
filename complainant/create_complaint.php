@@ -22,24 +22,23 @@ if(isset($_POST['submit'])){
     if($subject === '' || $description === ''){
         $form_error = 'Please complete the subject and complaint details.';
     } else {
-        $safe_subject = mysqli_real_escape_string($conn, $subject);
-        $safe_description = mysqli_real_escape_string($conn, $description);
-
         // Insert complaint
-        mysqli_query($conn,
+        db_execute($conn,
         "INSERT INTO complaints (complainant_id, subject, description)
-         VALUES ('$user_id','$safe_subject','$safe_description')");
+         VALUES (?, ?, ?)",
+         'iss',
+         [$user_id, $subject, $description]);
 
         $complaint_id = mysqli_insert_id($conn);
 
         if($complaint_id > 0){
             $tracking_number = 'CMP-' . date('Ymd') . '-' . str_pad((string)$complaint_id, 5, '0', STR_PAD_LEFT);
-            $safe_tracking_number = mysqli_real_escape_string($conn, $tracking_number);
-
-            mysqli_query($conn,
+            db_execute($conn,
             "UPDATE complaints
-             SET tracking_number='$safe_tracking_number'
-             WHERE complaint_id='$complaint_id'");
+             SET tracking_number=?
+             WHERE complaint_id=?",
+             'si',
+             [$tracking_number, $complaint_id]);
 
             addComplaintUpdate(
                 $conn,
@@ -52,9 +51,11 @@ if(isset($_POST['submit'])){
             );
 
             // Insert log
-            mysqli_query($conn,
+            db_execute($conn,
             "INSERT INTO logs (user_id, action)
-             VALUES ('$user_id','Created complaint $safe_tracking_number')");
+             VALUES (?, ?)",
+             'is',
+             [$user_id, "Created complaint $tracking_number"]);
 
             header("Location: print_ticket.php?id=" . $complaint_id . "&submitted=1");
             exit();

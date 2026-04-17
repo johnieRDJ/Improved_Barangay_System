@@ -18,7 +18,7 @@ if(isset($_POST['complaint_action'])){
     $complaintAction = $_POST['complaint_action'];
     $reopenNote = trim($_POST['reopen_note'] ?? '');
 
-    $complaint = mysqli_fetch_assoc(mysqli_query($conn,
+    $complaint = db_select_one($conn,
     "SELECT complaints.complaint_id,
             complaints.tracking_number,
             complaints.subject,
@@ -29,20 +29,24 @@ if(isset($_POST['complaint_action'])){
             staff.lastname AS staff_lastname
      FROM complaints
      LEFT JOIN users staff ON complaints.assigned_staff_id = staff.user_id
-     WHERE complaint_id='$complaintId'
-     AND complainant_id='$user_id'
-     LIMIT 1"));
+     WHERE complaint_id=?
+     AND complainant_id=?
+     LIMIT 1",
+     'ii',
+     [$complaintId, $user_id]);
 
     if(!$complaint){
         $action_error = 'Complaint not found.';
     } elseif($complaint['status'] !== 'Resolved' || $complaint['resolution_confirmation'] !== 'pending'){
         $action_error = 'This complaint is not waiting for your confirmation.';
     } elseif($complaintAction === 'confirm'){
-        mysqli_query($conn,
+        db_execute($conn,
         "UPDATE complaints
          SET resolution_confirmation='confirmed'
-         WHERE complaint_id='$complaintId'
-         AND complainant_id='$user_id'");
+         WHERE complaint_id=?
+         AND complainant_id=?",
+         'ii',
+         [$complaintId, $user_id]);
 
         addComplaintUpdate(
             $conn,
@@ -54,9 +58,11 @@ if(isset($_POST['complaint_action'])){
             'Complainant confirmed that the complaint has been resolved.'
         );
 
-        mysqli_query($conn,
+        db_execute($conn,
         "INSERT INTO logs (user_id, action)
-         VALUES ('$user_id', 'Confirmed resolution for complaint ID $complaintId')");
+         VALUES (?, ?)",
+         'is',
+         [$user_id, "Confirmed resolution for complaint ID $complaintId"]);
 
         if(!empty($complaint['staff_email'])){
             $staffName = trim($complaint['staff_firstname'] . ' ' . $complaint['staff_lastname']);
@@ -78,14 +84,14 @@ if(isset($_POST['complaint_action'])){
         if($reopenNote === ''){
             $action_error = 'Please tell the staff why the complaint is not yet resolved.';
         } else {
-            $safeReopenNote = mysqli_real_escape_string($conn, $reopenNote);
-
-            mysqli_query($conn,
+            db_execute($conn,
             "UPDATE complaints
              SET status='In Progress',
                  resolution_confirmation='reopened'
-             WHERE complaint_id='$complaintId'
-             AND complainant_id='$user_id'");
+             WHERE complaint_id=?
+             AND complainant_id=?",
+             'ii',
+             [$complaintId, $user_id]);
 
             addComplaintUpdate(
                 $conn,
@@ -97,9 +103,11 @@ if(isset($_POST['complaint_action'])){
                 "Complainant marked the complaint as not yet resolved. Reason: $reopenNote"
             );
 
-            mysqli_query($conn,
+            db_execute($conn,
             "INSERT INTO logs (user_id, action)
-             VALUES ('$user_id', 'Reopened complaint ID $complaintId with feedback: $safeReopenNote')");
+             VALUES (?, ?)",
+             'is',
+             [$user_id, "Reopened complaint ID $complaintId with feedback: $reopenNote"]);
 
             if(!empty($complaint['staff_email'])){
                 $staffName = trim($complaint['staff_firstname'] . ' ' . $complaint['staff_lastname']);
@@ -124,24 +132,28 @@ if(isset($_POST['complaint_action'])){
 include('../includes/header.php');
 include('../includes/sidebar.php');
 
-$result = mysqli_query($conn,
+$complaints = db_select_all($conn,
 "SELECT complaints.*, u.firstname AS staff_firstname, u.lastname AS staff_lastname
  FROM complaints
  LEFT JOIN users u ON complaints.assigned_staff_id = u.user_id
- WHERE complaints.complainant_id='$user_id'
- ORDER BY complaints.complaint_id DESC");
+ WHERE complaints.complainant_id=?
+ ORDER BY complaints.complaint_id DESC",
+ 'i',
+ [$user_id]);
 
-$timelineResult = mysqli_query($conn,
+$timelineRows = db_select_all($conn,
 "SELECT complaint_updates.*, users.firstname, users.lastname
  FROM complaint_updates
  LEFT JOIN users ON complaint_updates.actor_user_id = users.user_id
  INNER JOIN complaints ON complaints.complaint_id = complaint_updates.complaint_id
- WHERE complaints.complainant_id='$user_id'
- ORDER BY complaint_updates.created_at DESC, complaint_updates.update_id DESC");
+ WHERE complaints.complainant_id=?
+ ORDER BY complaint_updates.created_at DESC, complaint_updates.update_id DESC",
+ 'i',
+ [$user_id]);
 
 $timelineByComplaint = [];
 
-while($timelineResult && $timelineRow = mysqli_fetch_assoc($timelineResult)){
+foreach($timelineRows as $timelineRow){
     $timelineByComplaint[$timelineRow['complaint_id']][] = $timelineRow;
 }
 ?>
@@ -171,13 +183,13 @@ while($timelineResult && $timelineRow = mysqli_fetch_assoc($timelineResult)){
     <?php endif; ?>
 
     <div class="complaint-list">
-        <?php if(mysqli_num_rows($result) === 0): ?>
+        <?php if(count($complaints) === 0): ?>
             <div class="table-card">
                 <p style="margin:0; color:#5b6b7f;">You have not submitted any complaints yet.</p>
             </div>
         <?php endif; ?>
 
-        <?php while($row = mysqli_fetch_assoc($result)): ?>
+        <?php foreach($complaints as $row): ?>
             <?php
             $complaintId = intval($row['complaint_id']);
             $timeline = $timelineByComplaint[$complaintId] ?? [];
@@ -271,7 +283,7 @@ while($timelineResult && $timelineRow = mysqli_fetch_assoc($timelineResult)){
                     <?php endif; ?>
                 </div>
             </div>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
     </div>
 </div>
 

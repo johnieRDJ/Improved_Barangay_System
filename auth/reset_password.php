@@ -2,7 +2,7 @@
 session_start();
 include('../config/database.php');
 
-mysqli_query($conn,
+db_execute($conn,
 "DELETE FROM password_resets
  WHERE reset_expiry < NOW()");
 
@@ -11,12 +11,15 @@ if(!isset($_GET['token']) || empty($_GET['token'])){
     die("Invalid access (No token)");
 }
 
-$token = mysqli_real_escape_string($conn, $_GET['token']);
+$token = $_GET['token'];
 
 //  GET RESET RECORD
-$reset = mysqli_fetch_assoc(mysqli_query($conn,
+$reset = db_select_one($conn,
 "SELECT * FROM password_resets 
- WHERE reset_token='$token'"));
+ WHERE reset_token=?
+ LIMIT 1",
+ 's',
+ [$token]);
 
 if(!$reset){
     die("Invalid token");
@@ -29,9 +32,13 @@ if($reset['reset_expiry'] < $current_time){
     die("Token expired");
 }
 
-$user_id = $reset['user_id'];
-$user = mysqli_fetch_assoc(mysqli_query($conn,
-"SELECT password FROM users WHERE user_id='$user_id'"));
+$user_id = intval($reset['user_id']);
+$user = db_select_one(
+    $conn,
+    "SELECT password FROM users WHERE user_id=? LIMIT 1",
+    'i',
+    [$user_id]
+);
 
 if(!$user){
     die("User not found");
@@ -61,32 +68,40 @@ if(isset($_POST['reset'])){
     $hash = password_hash($password, PASSWORD_DEFAULT);
 
     //  UPDATE PASSWORD IN user_auth
-    mysqli_query($conn,
+    db_execute($conn,
     "UPDATE users 
-     SET password='$hash'
-     WHERE user_id='$user_id'");
+     SET password=?
+     WHERE user_id=?",
+     'si',
+     [$hash, $user_id]);
 
-    mysqli_query($conn,
+    db_execute($conn,
     "UPDATE user_auth
      SET otp_code=NULL,
          otp_expiry=NULL,
          failed_login_attempts=0,
          require_otp_until=NULL
-     WHERE user_id='$user_id'");
+     WHERE user_id=?",
+     'i',
+     [$user_id]);
 
     if(isset($_SESSION['temp_user']) && $_SESSION['temp_user'] == $user_id){
         unset($_SESSION['temp_user']);
     }
 
     //  DELETE TOKEN (IMPORTANT )
-    mysqli_query($conn,
+    db_execute($conn,
     "DELETE FROM password_resets
-     WHERE user_id='$user_id'");
+     WHERE user_id=?",
+     'i',
+     [$user_id]);
 
     //  LOG
-    mysqli_query($conn,
+    db_execute($conn,
     "INSERT INTO logs (user_id, action)
-     VALUES ('$user_id','Reset password via email')");
+     VALUES (?, ?)",
+     'is',
+     [$user_id, 'Reset password via email']);
 
     echo "<script>
     alert('Password reset successful. You can now log in with your new password.');

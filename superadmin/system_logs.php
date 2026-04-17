@@ -10,7 +10,7 @@ include('../config/database.php');
 include('../includes/header.php');
 include('../includes/sidebar.php');
 
-$result = mysqli_query($conn,
+$logs = db_select_all($conn,
 "SELECT logs.*, users.firstname, users.lastname
  FROM logs
  LEFT JOIN users ON logs.user_id = users.user_id
@@ -26,23 +26,23 @@ $result = mysqli_query($conn,
     <th>Date</th>
 </tr>
 
-<?php while($row = mysqli_fetch_assoc($result)): ?>
+<?php foreach($logs as $row): ?>
 <tr>
 
 <td>
 <?php 
 echo $row['firstname'] 
-? $row['firstname']." ".$row['lastname'] 
+? htmlspecialchars($row['firstname']." ".$row['lastname'])
 : "System"; 
 ?>
 </td>
 
-<td><?php echo $row['action']; ?></td>
+<td><?php echo htmlspecialchars($row['action']); ?></td>
 
-<td><?php echo $row['log_time']; ?></td>
+<td><?php echo htmlspecialchars($row['log_time']); ?></td>
 
 </tr>
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </table>
 

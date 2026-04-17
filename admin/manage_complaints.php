@@ -21,7 +21,7 @@ if(isset($_POST['assign'])){
     $staff_id = intval($_POST['staff_id']);
 
     // Check if already assigned
-    $check = mysqli_fetch_assoc(mysqli_query($conn,
+    $check = db_select_one($conn,
     "SELECT complaints.assigned_staff_id,
             complaints.tracking_number,
             complaints.subject,
@@ -30,8 +30,15 @@ if(isset($_POST['assign'])){
             users.lastname
      FROM complaints
      JOIN users ON complaints.complainant_id = users.user_id
-     WHERE complaints.complaint_id='$complaint_id'
-     LIMIT 1"));
+     WHERE complaints.complaint_id=?
+     LIMIT 1",
+     'i',
+     [$complaint_id]);
+
+    if(!$check){
+        header("Location: manage_complaints.php");
+        exit();
+    }
 
     if($check['assigned_staff_id']){
         $log_msg = "Updated staff assignment for complaint ID $complaint_id";
@@ -39,25 +46,37 @@ if(isset($_POST['assign'])){
         $log_msg = "Assigned staff to complaint ID $complaint_id";
     }
 
-    $staff_data = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT firstname, lastname FROM users WHERE user_id='$staff_id' LIMIT 1"));
+    $staff_data = db_select_one($conn,
+    "SELECT firstname, lastname
+     FROM users
+     WHERE user_id=?
+     AND role='staff'
+     AND account_status='approved'
+     LIMIT 1",
+     'i',
+     [$staff_id]);
 
     $staff_name = $staff_data
         ? trim($staff_data['firstname'] . ' ' . $staff_data['lastname'])
         : 'selected staff member';
 
     // Update complaint
-    mysqli_query($conn,
+    if($staff_data){
+        db_execute($conn,
     "UPDATE complaints
-     SET assigned_staff_id='$staff_id',
+     SET assigned_staff_id=?,
          status='In Progress',
          resolution_confirmation=NULL
-     WHERE complaint_id='$complaint_id'");
+     WHERE complaint_id=?",
+     'ii',
+     [$staff_id, $complaint_id]);
 
     // Save log
-    mysqli_query($conn,
+    db_execute($conn,
     "INSERT INTO logs (user_id, action)
-     VALUES ('".$_SESSION['user_id']."', '$log_msg')");
+     VALUES (?, ?)",
+     'is',
+     [intval($_SESSION['user_id']), $log_msg]);
 
     addComplaintUpdate(
         $conn,
@@ -79,6 +98,7 @@ if(isset($_POST['assign'])){
         "Your complaint has been assigned to $staff_name for action.",
         'Barangay Admin'
     );
+    }
 
     header("Location: manage_complaints.php");
     exit();
@@ -90,7 +110,7 @@ include('../includes/sidebar.php');
 // ============================
 //  GET DATA
 // ============================
-$result = mysqli_query($conn,
+$complaints = db_select_all($conn,
 "SELECT complaints.*, 
         u.firstname AS fname, u.lastname AS lname, u.email,
         s.firstname AS staff_fname, s.lastname AS staff_lname
@@ -100,7 +120,7 @@ $result = mysqli_query($conn,
  ORDER BY complaints.complaint_id DESC");
 
 // Only approved staff
-$staff = mysqli_query($conn,
+$staffRows = db_select_all($conn,
 "SELECT * FROM users 
  WHERE role='staff' AND account_status='approved'");
 ?>
@@ -119,17 +139,17 @@ $staff = mysqli_query($conn,
     <th>Record / Assign</th>
 </tr>
 
-<?php while($row = mysqli_fetch_assoc($result)): ?>
+<?php foreach($complaints as $row): ?>
 
 <tr>
 
 <td><span class="tracking-number compact"><?php echo htmlspecialchars($row['tracking_number']); ?></span></td>
 
-<td><?php echo $row['fname']." ".$row['lname']; ?></td>
+<td><?php echo htmlspecialchars($row['fname']." ".$row['lname']); ?></td>
 
-<td><?php echo $row['subject']; ?></td>
+<td><?php echo htmlspecialchars($row['subject']); ?></td>
 
-<td><?php echo $row['description']; ?></td>
+<td><?php echo htmlspecialchars($row['description']); ?></td>
 
 <td>
 <?php
@@ -154,7 +174,7 @@ else{
 <td>
 <?php
 if($row['staff_fname']){
-    echo $row['staff_fname']." ".$row['staff_lname'];
+    echo htmlspecialchars($row['staff_fname']." ".$row['staff_lname']);
 }else{
     echo "<i>Not Assigned</i>";
 }
@@ -171,22 +191,17 @@ if($row['staff_fname']){
 <form method="POST">
 
 <input type="hidden" name="complaint_id" value="<?php echo $row['complaint_id']; ?>">
-<input type="hidden" name="email" value="<?php echo $row['email']; ?>">
-<input type="hidden" name="fullname" value="<?php echo $row['fname']." ".$row['lname']; ?>">
-<input type="hidden" name="subject" value="<?php echo $row['subject']; ?>">
-
 <select name="staff_id" required>
 
 <?php
-mysqli_data_seek($staff, 0);
-while($s = mysqli_fetch_assoc($staff)):
+foreach($staffRows as $s):
 ?>
 
 <option value="<?php echo $s['user_id']; ?>">
-<?php echo $s['firstname']." ".$s['lastname']; ?>
+<?php echo htmlspecialchars($s['firstname']." ".$s['lastname']); ?>
 </option>
 
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </select>
 
@@ -202,7 +217,7 @@ while($s = mysqli_fetch_assoc($staff)):
 
 </tr>
 
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </table>
 </div>

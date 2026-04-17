@@ -14,6 +14,85 @@ if (!$conn) {
 
 mysqli_query($conn, "SET time_zone = '+08:00'");
 
+if(!function_exists('db_prepared_query')){
+    function db_prepared_query(mysqli $conn, string $sql, string $types = '', array $params = [])
+    {
+        $stmt = mysqli_prepare($conn, $sql);
+
+        if(!$stmt){
+            return false;
+        }
+
+        if($types !== '' && !empty($params)){
+            $bindParams = [$types];
+
+            foreach($params as $key => $value){
+                $bindParams[] = &$params[$key];
+            }
+
+            if(!call_user_func_array([$stmt, 'bind_param'], $bindParams)){
+                mysqli_stmt_close($stmt);
+                return false;
+            }
+        }
+
+        if(!mysqli_stmt_execute($stmt)){
+            mysqli_stmt_close($stmt);
+            return false;
+        }
+
+        return $stmt;
+    }
+}
+
+if(!function_exists('db_select_one')){
+    function db_select_one(mysqli $conn, string $sql, string $types = '', array $params = []): ?array
+    {
+        $stmt = db_prepared_query($conn, $sql, $types, $params);
+
+        if(!$stmt){
+            return null;
+        }
+
+        $result = mysqli_stmt_get_result($stmt);
+        $row = $result ? mysqli_fetch_assoc($result) : null;
+        mysqli_stmt_close($stmt);
+
+        return $row ?: null;
+    }
+}
+
+if(!function_exists('db_select_all')){
+    function db_select_all(mysqli $conn, string $sql, string $types = '', array $params = []): array
+    {
+        $stmt = db_prepared_query($conn, $sql, $types, $params);
+
+        if(!$stmt){
+            return [];
+        }
+
+        $result = mysqli_stmt_get_result($stmt);
+        $rows = $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+        mysqli_stmt_close($stmt);
+
+        return $rows;
+    }
+}
+
+if(!function_exists('db_execute')){
+    function db_execute(mysqli $conn, string $sql, string $types = '', array $params = []): bool
+    {
+        $stmt = db_prepared_query($conn, $sql, $types, $params);
+
+        if(!$stmt){
+            return false;
+        }
+
+        mysqli_stmt_close($stmt);
+        return true;
+    }
+}
+
 $failedLoginAttemptsColumn = mysqli_query($conn, "SHOW COLUMNS FROM user_auth LIKE 'failed_login_attempts'");
 if($failedLoginAttemptsColumn instanceof mysqli_result && mysqli_num_rows($failedLoginAttemptsColumn) === 0){
     mysqli_query($conn, "ALTER TABLE user_auth ADD COLUMN failed_login_attempts INT(11) NOT NULL DEFAULT 0 AFTER otp_expiry");

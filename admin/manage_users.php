@@ -7,10 +7,6 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin'){
 }
 
 include('../config/database.php');
-include('../includes/header.php');
-include('../includes/sidebar.php');
-
-
 
 // ============================
 // DELETE USER
@@ -18,19 +14,26 @@ include('../includes/sidebar.php');
 if(isset($_GET['delete'])){
     $id = intval($_GET['delete']);
 
-    $target = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT role FROM users WHERE user_id='$id'"));
+    $target = db_select_one($conn,
+    "SELECT role FROM users WHERE user_id=? LIMIT 1",
+    'i',
+    [$id]);
 
     if($target && $target['role'] == 'superadmin'){
         echo "<script>alert('Superadmin account is protected.'); window.location='manage_users.php';</script>";
         exit();
     }
 
-    mysqli_query($conn,"DELETE FROM users WHERE user_id='$id' AND role!='superadmin'");
+    db_execute($conn,
+    "DELETE FROM users WHERE user_id=? AND role!='superadmin'",
+    'i',
+    [$id]);
 
-    mysqli_query($conn,
+    db_execute($conn,
     "INSERT INTO logs (user_id, action)
-     VALUES ('".$_SESSION['user_id']."','Deleted user ID $id')");
+     VALUES (?, ?)",
+     'is',
+     [intval($_SESSION['user_id']), "Deleted user ID $id"]);
 
     header("Location: manage_users.php");
     exit();
@@ -45,60 +48,78 @@ $status_filter = "";
 $residency_filter = "";
 
 if(isset($_GET['search'])){
-    $search = mysqli_real_escape_string($conn, $_GET['search']);
+    $search = trim($_GET['search']);
 }
 
 if(isset($_GET['role'])){
-    $role_filter = mysqli_real_escape_string($conn, $_GET['role']);
+    $role_filter = in_array($_GET['role'], ['superadmin', 'admin', 'staff', 'complainant'], true) ? $_GET['role'] : '';
 }
 
 if(isset($_GET['account_status'])){
-    $status_filter = mysqli_real_escape_string($conn, $_GET['account_status']);
+    $status_filter = in_array($_GET['account_status'], ['approved', 'pending', 'rejected'], true) ? $_GET['account_status'] : '';
 }
 
 if(isset($_GET['residency'])){
-    $residency_filter = mysqli_real_escape_string($conn, $_GET['residency']);
+    $residency_filter = in_array($_GET['residency'], ['verified', 'pending', 'none'], true) ? $_GET['residency'] : '';
 }
 
 $where_conditions = ["1=1"];
+$types = '';
+$params = [];
 
 if($search != ""){
     $where_conditions[] = "(
-        users.firstname LIKE '%$search%'
-        OR users.lastname LIKE '%$search%'
-        OR users.email LIKE '%$search%'
+        users.firstname LIKE ?
+        OR users.lastname LIKE ?
+        OR users.email LIKE ?
     )";
+    $searchLike = '%' . $search . '%';
+    $types .= 'sss';
+    $params[] = $searchLike;
+    $params[] = $searchLike;
+    $params[] = $searchLike;
 }
 
 if($role_filter != ""){
-    $where_conditions[] = "users.role='$role_filter'";
+    $where_conditions[] = "users.role=?";
+    $types .= 's';
+    $params[] = $role_filter;
 }
 
 if($status_filter != ""){
-    $where_conditions[] = "users.account_status='$status_filter'";
+    $where_conditions[] = "users.account_status=?";
+    $types .= 's';
+    $params[] = $status_filter;
 }
 
 if($residency_filter == "none"){
     $where_conditions[] = "(residency.status IS NULL OR residency.status='')";
 }
 elseif($residency_filter != ""){
-    $where_conditions[] = "residency.status='$residency_filter'";
+    $where_conditions[] = "residency.status=?";
+    $types .= 's';
+    $params[] = $residency_filter;
 }
 
 $where_sql = implode(" AND ", $where_conditions);
 
-$result = mysqli_query($conn,
+$users = db_select_all($conn,
 "SELECT users.*, residency.status AS residency_status
  FROM users
  LEFT JOIN residency ON users.user_id = residency.user_id
  WHERE $where_sql
- ORDER BY users.role, users.lastname, users.firstname");
+ ORDER BY users.role, users.lastname, users.firstname",
+ $types,
+ $params);
 
 $status_message = "";
 if(isset($_SESSION['status_message'])){
     $status_message = $_SESSION['status_message'];
     unset($_SESSION['status_message']);
 }
+
+include('../includes/header.php');
+include('../includes/sidebar.php');
 ?>
 
 <?php if($status_message != ""): ?>
@@ -177,14 +198,14 @@ window.addEventListener('DOMContentLoaded', function () {
     <th>Action</th>
 </tr>
 
-<?php while($row = mysqli_fetch_assoc($result)): ?>
+<?php foreach($users as $row): ?>
 <tr>
 
-<td><?php echo $row['firstname']." ".$row['lastname']; ?></td>
+<td><?php echo htmlspecialchars($row['firstname']." ".$row['lastname']); ?></td>
 
-<td><?php echo $row['email']; ?></td>
+<td><?php echo htmlspecialchars($row['email']); ?></td>
 
-<td><?php echo $row['role']; ?></td>
+<td><?php echo htmlspecialchars($row['role']); ?></td>
 
 
 
@@ -241,7 +262,7 @@ else{
 </td>
 
 </tr>
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </table>
 </div>

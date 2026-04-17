@@ -10,61 +10,69 @@ include('../config/database.php');
 include('../includes/header.php');
 include('../includes/sidebar.php');
 
-// ============================
-//  SEARCH & FILTER
-// ============================
-$search = $_GET['search'] ?? '';
-$role = $_GET['role'] ?? '';
-$status = $_GET['status'] ?? '';
-$residency = $_GET['residency'] ?? '';
+$search = trim($_GET['search'] ?? '');
+$role = in_array($_GET['role'] ?? '', ['staff', 'complainant'], true) ? $_GET['role'] : '';
+$status = in_array($_GET['status'] ?? '', ['approved', 'pending', 'rejected'], true) ? $_GET['status'] : '';
+$residency = in_array($_GET['residency'] ?? '', ['verified', 'pending', 'none'], true) ? $_GET['residency'] : '';
 
-$query = "SELECT users.*, 
-                 user_profiles.address,
-                 user_profiles.phone,
-                 user_profiles.about,
-                 user_profiles.profile_image,
-                 residency.status AS residency_status
-          FROM users
-          LEFT JOIN user_profiles
-          ON users.user_id = user_profiles.user_id
-          LEFT JOIN residency
-          ON users.user_id = residency.user_id
-          WHERE role != 'admin'";
+$where = ["users.role != 'admin'"];
+$types = '';
+$params = [];
 
-// SEARCH
-if($search){
-    $query .= " AND (firstname LIKE '%$search%' 
-                OR lastname LIKE '%$search%' 
-                OR email LIKE '%$search%')";
+if($search !== ''){
+    $where[] = "(users.firstname LIKE ? OR users.lastname LIKE ? OR users.email LIKE ?)";
+    $searchLike = '%' . $search . '%';
+    $types .= 'sss';
+    $params[] = $searchLike;
+    $params[] = $searchLike;
+    $params[] = $searchLike;
 }
 
-// FILTERS
-if($role){
-    $query .= " AND role='$role'";
+if($role !== ''){
+    $where[] = "users.role=?";
+    $types .= 's';
+    $params[] = $role;
 }
 
-if($status){
-    $query .= " AND account_status='$status'";
+if($status !== ''){
+    $where[] = "users.account_status=?";
+    $types .= 's';
+    $params[] = $status;
 }
 
-if($residency){
-    if($residency == 'none'){
-        $query .= " AND (residency.status='none' OR residency.status IS NULL)";
-    } else {
-        $query .= " AND residency.status='$residency'";
-    }
+if($residency === 'none'){
+    $where[] = "(residency.status='none' OR residency.status IS NULL)";
+} elseif($residency !== ''){
+    $where[] = "residency.status=?";
+    $types .= 's';
+    $params[] = $residency;
 }
 
-$result = mysqli_query($conn, $query);
+$whereSql = implode(' AND ', $where);
+
+$profiles = db_select_all(
+    $conn,
+    "SELECT users.*,
+            user_profiles.address,
+            user_profiles.phone,
+            user_profiles.about,
+            user_profiles.profile_image,
+            residency.status AS residency_status
+     FROM users
+     LEFT JOIN user_profiles ON users.user_id = user_profiles.user_id
+     LEFT JOIN residency ON users.user_id = residency.user_id
+     WHERE $whereSql",
+    $types,
+    $params
+);
 ?>
 
 <h1>User Profiles</h1>
 
-<!--  SEARCH + FILTER -->
 <form method="GET" style="margin-bottom:20px;">
 
     <input type="text" name="search" placeholder="Search name/email"
-    value="<?php echo $search; ?>">
+    value="<?php echo htmlspecialchars($search); ?>">
 
     <select name="role">
         <option value="">All Roles</option>
@@ -90,27 +98,25 @@ $result = mysqli_query($conn, $query);
 
 </form>
 
-<!--  PROFILE LIST -->
 <div style="display:flex; flex-wrap:wrap; gap:20px;">
 
-<?php while($row = mysqli_fetch_assoc($result)): ?>
+<?php foreach($profiles as $row): ?>
 
 <div style="border:1px solid #ccc; padding:15px; width:300px;">
 
-    <!--  PROFILE IMAGE -->
     <?php if($row['profile_image']): ?>
-        <img src="../uploads/profile/<?php echo $row['profile_image']; ?>" width="100%">
+        <img src="../uploads/profile/<?php echo htmlspecialchars($row['profile_image']); ?>" width="100%">
     <?php else: ?>
         <p>No Image</p>
     <?php endif; ?>
 
-    <h3><?php echo $row['firstname']." ".$row['lastname']; ?></h3>
+    <h3><?php echo htmlspecialchars($row['firstname']." ".$row['lastname']); ?></h3>
 
-    <p><strong>Email:</strong> <?php echo $row['email']; ?></p>
+    <p><strong>Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
 
-    <p><strong>Role:</strong> <?php echo ucfirst($row['role']); ?></p>
+    <p><strong>Role:</strong> <?php echo htmlspecialchars(ucfirst($row['role'])); ?></p>
 
-    <p><strong>Status:</strong> 
+    <p><strong>Status:</strong>
         <?php
         if($row['account_status'] == 'approved'){
             echo "<span style='color:green;'>Approved</span>";
@@ -122,7 +128,7 @@ $result = mysqli_query($conn, $query);
         ?>
     </p>
 
-    <p><strong>Residency:</strong> 
+    <p><strong>Residency:</strong>
         <?php
         if($row['residency_status'] == 'verified'){
             echo "<span style='color:green;'>Verified</span>";
@@ -134,17 +140,17 @@ $result = mysqli_query($conn, $query);
         ?>
     </p>
 
-    <p><strong>Phone:</strong> <?php echo $row['phone'] ?: 'N/A'; ?></p>
+    <p><strong>Phone:</strong> <?php echo htmlspecialchars($row['phone'] ?: 'N/A'); ?></p>
 
-    <p><strong>Address:</strong> <?php echo $row['address'] ?: 'N/A'; ?></p>
+    <p><strong>Address:</strong> <?php echo htmlspecialchars($row['address'] ?: 'N/A'); ?></p>
 
     <p><strong>About:</strong><br>
-    <?php echo $row['about'] ?: 'No description'; ?>
+    <?php echo nl2br(htmlspecialchars($row['about'] ?: 'No description')); ?>
     </p>
 
 </div>
 
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </div>
 

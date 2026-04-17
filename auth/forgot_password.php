@@ -7,22 +7,23 @@ $message = '';
 if(isset($_POST['send'])){
 
     $email_input = trim($_POST['email']);
-    $email = mysqli_real_escape_string($conn, $email_input);
 
-    mysqli_query($conn,
+    db_execute($conn,
     "DELETE FROM password_resets
      WHERE reset_expiry < NOW()");
 
     //  CHECK USER
-    $user = mysqli_fetch_assoc(mysqli_query($conn,
+    $user = db_select_one($conn,
     "SELECT user_id, firstname, lastname, email
      FROM users
-     WHERE email='$email'
-     LIMIT 1"));
+     WHERE email=?
+     LIMIT 1",
+     's',
+     [$email_input]);
 
     if($user){
 
-        $user_id = $user['user_id'];
+        $user_id = intval($user['user_id']);
         $fullname = trim($user['firstname'] . ' ' . $user['lastname']);
 
         //  GENERATE TOKEN
@@ -30,13 +31,17 @@ if(isset($_POST['send'])){
         $expiry = date("Y-m-d H:i:s", strtotime("+15 minutes"));
 
         //  DELETE OLD TOKENS (IMPORTANT )
-        mysqli_query($conn,
-        "DELETE FROM password_resets WHERE user_id='$user_id'");
+        db_execute($conn,
+        "DELETE FROM password_resets WHERE user_id=?",
+        'i',
+        [$user_id]);
 
         //  INSERT NEW TOKEN
-        mysqli_query($conn,
+        db_execute($conn,
         "INSERT INTO password_resets (user_id, reset_token, reset_expiry)
-         VALUES ('$user_id','$token','$expiry')");
+         VALUES (?, ?, ?)",
+         'iss',
+         [$user_id, $token, $expiry]);
 
         //  SEND EMAIL
         sendResetLink($user['email'], $fullname, $token);

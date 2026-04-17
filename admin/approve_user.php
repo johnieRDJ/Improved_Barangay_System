@@ -11,8 +11,10 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin'){
 
 $id = intval($_GET['id']);
 
-$target = mysqli_fetch_assoc(mysqli_query($conn,
-"SELECT role FROM users WHERE user_id='$id'"));
+$target = db_select_one($conn,
+"SELECT role FROM users WHERE user_id=? LIMIT 1",
+'i',
+[$id]);
 
 if($target && $target['role'] == 'superadmin'){
     echo "<script>alert('Superadmin account is protected.'); window.location='manage_users.php';</script>";
@@ -20,21 +22,27 @@ if($target && $target['role'] == 'superadmin'){
 }
 
 // Approve the user
-mysqli_query($conn, 
+db_execute($conn,
 "UPDATE users 
  SET account_status='approved'
- WHERE user_id='$id' AND role!='superadmin'");
+ WHERE user_id=? AND role!='superadmin'",
+ 'i',
+ [$id]);
 
-mysqli_query($conn,
+db_execute($conn,
 "INSERT INTO residency (user_id, status)
- SELECT '$id', 'pending'
+ SELECT ?, 'pending'
  WHERE NOT EXISTS (
-     SELECT 1 FROM residency WHERE user_id='$id'
- )");
+     SELECT 1 FROM residency WHERE user_id=?
+ )",
+ 'ii',
+ [$id, $id]);
 
 // Get user info
-$result = mysqli_query($conn,"SELECT firstname, lastname, email FROM users WHERE user_id='$id'");
-$user = mysqli_fetch_assoc($result);
+$user = db_select_one($conn,
+"SELECT firstname, lastname, email FROM users WHERE user_id=? LIMIT 1",
+'i',
+[$id]);
 
 if(!$user){
     header("Location: manage_users.php");
@@ -48,10 +56,11 @@ $fullname = $user['firstname'] . " " . $user['lastname'];
 sendAccountStatus($user['email'], $fullname, "approved");
 
 // Save log
-mysqli_query($conn, 
+db_execute($conn,
 "INSERT INTO logs (user_id, action)
- VALUES ('".$_SESSION['user_id']."',
- 'Approved user ID $id')");
+ VALUES (?, ?)",
+ 'is',
+ [intval($_SESSION['user_id']), "Approved user ID $id"]);
 
 $_SESSION['status_message'] = $fullname . " has been approved. Residency verification is still separate.";
 

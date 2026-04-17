@@ -12,15 +12,7 @@ function addComplaintUpdate(
     ?string $proofOriginalName = null
 ): void
 {
-    $safeActorRole = mysqli_real_escape_string($conn, $actorRole);
-    $safeUpdateType = mysqli_real_escape_string($conn, $updateType);
-    $safeStatusSnapshot = mysqli_real_escape_string($conn, $statusSnapshot);
-    $safeMessage = mysqli_real_escape_string($conn, $message);
-    $safeProofPath = $proofPath !== null ? "'" . mysqli_real_escape_string($conn, $proofPath) . "'" : 'NULL';
-    $safeProofOriginalName = $proofOriginalName !== null ? "'" . mysqli_real_escape_string($conn, $proofOriginalName) . "'" : 'NULL';
-    $actorUserIdValue = $actorUserId === null ? 'NULL' : "'" . intval($actorUserId) . "'";
-
-    mysqli_query(
+    db_execute(
         $conn,
         "INSERT INTO complaint_updates (
             complaint_id,
@@ -32,15 +24,26 @@ function addComplaintUpdate(
             proof_path,
             proof_original_name
         ) VALUES (
-            '" . intval($complaintId) . "',
-            $actorUserIdValue,
-            '$safeActorRole',
-            '$safeUpdateType',
-            '$safeStatusSnapshot',
-            '$safeMessage',
-            $safeProofPath,
-            $safeProofOriginalName
-        )"
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        )",
+        'iissssss',
+        [
+            intval($complaintId),
+            $actorUserId,
+            $actorRole,
+            $updateType,
+            $statusSnapshot,
+            $message,
+            $proofPath,
+            $proofOriginalName
+        ]
     );
 }
 ?>

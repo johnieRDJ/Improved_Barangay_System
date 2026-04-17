@@ -13,7 +13,7 @@ $complaint_id = intval($_GET['id'] ?? 0);
 $complaint = null;
 
 if($complaint_id > 0){
-    $result = mysqli_query($conn,
+    $complaint = db_select_one($conn,
     "SELECT complaints.complaint_id,
             complaints.tracking_number,
             complaints.subject,
@@ -30,13 +30,11 @@ if($complaint_id > 0){
      FROM complaints
      INNER JOIN users complainant ON complaints.complainant_id = complainant.user_id
      LEFT JOIN users staff ON complaints.assigned_staff_id = staff.user_id
-     WHERE complaints.complaint_id='$complaint_id'
-     AND complaints.complainant_id='$user_id'
-     LIMIT 1");
-
-    if($result){
-        $complaint = mysqli_fetch_assoc($result);
-    }
+     WHERE complaints.complaint_id=?
+     AND complaints.complainant_id=?
+     LIMIT 1",
+     'ii',
+     [$complaint_id, $user_id]);
 }
 
 include('../includes/header.php');

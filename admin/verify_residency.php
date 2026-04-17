@@ -8,10 +8,14 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin'){
     exit();
 }
 
-$id = intval($_GET['id']);
+$id = intval($_GET['id'] ?? 0);
 
-$target = mysqli_fetch_assoc(mysqli_query($conn,
-"SELECT firstname, lastname, role FROM users WHERE user_id='$id'"));
+$target = db_select_one(
+    $conn,
+    "SELECT firstname, lastname, role FROM users WHERE user_id=? LIMIT 1",
+    'i',
+    [$id]
+);
 
 if(!$target){
     header("Location: manage_users.php");
@@ -23,25 +27,42 @@ if($target['role'] == 'superadmin'){
     exit();
 }
 
-mysqli_query($conn,
-"UPDATE residency
- SET status='verified'
- WHERE user_id='$id'");
+$stmt = db_prepared_query(
+    $conn,
+    "UPDATE residency
+     SET status='verified'
+     WHERE user_id=?",
+    'i',
+    [$id]
+);
 
-if(mysqli_affected_rows($conn) == 0){
-    mysqli_query($conn,
-    "INSERT INTO residency (user_id, status)
-     SELECT '$id', 'verified'
-     WHERE NOT EXISTS (
-         SELECT 1 FROM residency WHERE user_id='$id'
-     )");
+$updated = $stmt ? mysqli_stmt_affected_rows($stmt) : 0;
+if($stmt){
+    mysqli_stmt_close($stmt);
+}
+
+if($updated == 0){
+    db_execute(
+        $conn,
+        "INSERT INTO residency (user_id, status)
+         SELECT ?, 'verified'
+         WHERE NOT EXISTS (
+             SELECT 1 FROM residency WHERE user_id=?
+         )",
+        'ii',
+        [$id, $id]
+    );
 }
 
 $fullname = $target['firstname'] . " " . $target['lastname'];
 
-mysqli_query($conn,
-"INSERT INTO logs (user_id, action)
- VALUES ('".$_SESSION['user_id']."','Verified residency for user ID $id')");
+db_execute(
+    $conn,
+    "INSERT INTO logs (user_id, action)
+     VALUES (?, ?)",
+    'is',
+    [intval($_SESSION['user_id']), "Verified residency for user ID $id"]
+);
 
 $_SESSION['status_message'] = "Residency for " . $fullname . " has been verified.";
 
