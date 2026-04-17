@@ -116,7 +116,7 @@ $staff = mysqli_query($conn,
     <th>Description</th>
     <th>Status</th>
     <th>Assigned Staff</th>
-    <th>Assign / Reassign</th>
+    <th>Record / Assign</th>
 </tr>
 
 <?php while($row = mysqli_fetch_assoc($result)): ?>
@@ -162,6 +162,10 @@ if($row['staff_fname']){
 </td>
 
 <td>
+
+<div class="action-links" style="margin-bottom:10px;">
+    <a href="../reports/print_complaint_record.php?id=<?php echo intval($row['complaint_id']); ?>" target="_blank" rel="noopener noreferrer">Print Record</a>
+</div>
 
 <!--  ALWAYS ALLOW ASSIGN / REASSIGN -->
 <form method="POST">

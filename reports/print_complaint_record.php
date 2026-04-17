@@ -1,0 +1,259 @@
+<?php
+session_start();
+
+if(
+    !isset($_SESSION['user_id'], $_SESSION['role']) ||
+    !in_array($_SESSION['role'], ['admin', 'staff'], true)
+){
+    header("Location: ../auth/login.php");
+    exit();
+}
+
+include('../config/database.php');
+
+$user_id = intval($_SESSION['user_id']);
+$role = $_SESSION['role'];
+$complaint_id = intval($_GET['id'] ?? 0);
+$complaint = null;
+$timeline = [];
+
+if($complaint_id > 0){
+    $accessCondition = $role === 'staff'
+        ? "AND complaints.assigned_staff_id='$user_id'"
+        : "";
+
+    $result = mysqli_query($conn,
+    "SELECT complaints.complaint_id,
+            complaints.tracking_number,
+            complaints.subject,
+            complaints.description,
+            complaints.status,
+            complaints.resolution_confirmation,
+            complaints.staff_comment,
+            complaints.created_at,
+            complaints.assigned_staff_id,
+            complainant.firstname AS complainant_firstname,
+            complainant.lastname AS complainant_lastname,
+            complainant.email AS complainant_email,
+            complainant_profile.address AS complainant_address,
+            complainant_profile.phone AS complainant_phone,
+            staff.firstname AS staff_firstname,
+            staff.lastname AS staff_lastname,
+            staff.email AS staff_email
+     FROM complaints
+     INNER JOIN users complainant ON complaints.complainant_id = complainant.user_id
+     LEFT JOIN user_profiles complainant_profile ON complainant.user_id = complainant_profile.user_id
+     LEFT JOIN users staff ON complaints.assigned_staff_id = staff.user_id
+     WHERE complaints.complaint_id='$complaint_id'
+     $accessCondition
+     LIMIT 1");
+
+    if($result){
+        $complaint = mysqli_fetch_assoc($result);
+    }
+
+    if($complaint){
+        $timelineResult = mysqli_query($conn,
+        "SELECT complaint_updates.*,
+                users.firstname,
+                users.lastname
+         FROM complaint_updates
+         LEFT JOIN users ON complaint_updates.actor_user_id = users.user_id
+         WHERE complaint_updates.complaint_id='$complaint_id'
+         ORDER BY complaint_updates.created_at ASC, complaint_updates.update_id ASC");
+
+        while($timelineResult && $row = mysqli_fetch_assoc($timelineResult)){
+            $timeline[] = $row;
+        }
+
+        mysqli_query($conn,
+        "INSERT INTO logs (user_id, action)
+         VALUES ('$user_id', 'Generated printable complaint record for complaint ID $complaint_id')");
+    }
+}
+
+$preparedByResult = mysqli_query($conn,
+"SELECT firstname, lastname FROM users WHERE user_id='$user_id' LIMIT 1");
+$preparedBy = $preparedByResult ? mysqli_fetch_assoc($preparedByResult) : null;
+$preparedByName = $preparedBy ? trim($preparedBy['firstname'] . ' ' . $preparedBy['lastname']) : ucfirst($role);
+
+include('../includes/header.php');
+include('../includes/sidebar.php');
+?>
+
+<div class="page-shell record-page">
+    <div class="dashboard-header no-print">
+        <h1>Printable Complaint Record</h1>
+        <p>Generate an official barangay record form for filing, review, or documentation.</p>
+    </div>
+
+    <?php if(!$complaint): ?>
+        <div class="table-card">
+            <p style="margin:0; color:#b91c1c; font-weight:700;">Complaint record not found or you do not have access to it.</p>
+            <p class="developer-note" style="margin-top:8px;">Staff can only print records for complaints assigned to them.</p>
+        </div>
+    <?php else: ?>
+        <?php
+        $complainantName = trim($complaint['complainant_firstname'] . ' ' . $complaint['complainant_lastname']);
+        $staffName = trim(($complaint['staff_firstname'] ?? '') . ' ' . ($complaint['staff_lastname'] ?? ''));
+        $submittedAt = date('F j, Y g:i A', strtotime($complaint['created_at']));
+        $generatedAt = date('F j, Y g:i A');
+        ?>
+
+        <div class="ticket-actions no-print">
+            <button type="button" onclick="window.print()">Print Record Form</button>
+            <?php if($role === 'admin'): ?>
+                <a href="../admin/manage_complaints.php" class="page-action secondary-action">Back to Manage Complaints</a>
+            <?php else: ?>
+                <a href="../staff/view_complaints.php" class="page-action secondary-action">Back to Assigned Complaints</a>
+            <?php endif; ?>
+        </div>
+
+        <article class="record-sheet">
+            <header class="record-header">
+                <div>
+                    <p class="ticket-kicker">Barangay Digital Complaint Desk System</p>
+                    <h2>Official Complaint Record Form</h2>
+                    <p>For barangay staff/admin documentation and filing.</p>
+                </div>
+                <div class="ticket-number-box">
+                    <span>Tracking Number</span>
+                    <strong><?php echo htmlspecialchars($complaint['tracking_number']); ?></strong>
+                </div>
+            </header>
+
+            <section class="record-section">
+                <h3>Record Summary</h3>
+                <div class="ticket-grid">
+                    <div>
+                        <span>Complaint ID</span>
+                        <strong><?php echo intval($complaint['complaint_id']); ?></strong>
+                    </div>
+                    <div>
+                        <span>Date Submitted</span>
+                        <strong><?php echo htmlspecialchars($submittedAt); ?></strong>
+                    </div>
+                    <div>
+                        <span>Current Status</span>
+                        <strong><?php echo htmlspecialchars($complaint['status']); ?></strong>
+                    </div>
+                    <div>
+                        <span>Generated On</span>
+                        <strong><?php echo htmlspecialchars($generatedAt); ?></strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="record-section">
+                <h3>Complainant Information</h3>
+                <div class="ticket-grid">
+                    <div>
+                        <span>Name</span>
+                        <strong><?php echo htmlspecialchars($complainantName); ?></strong>
+                    </div>
+                    <div>
+                        <span>Email</span>
+                        <strong><?php echo htmlspecialchars($complaint['complainant_email']); ?></strong>
+                    </div>
+                    <div>
+                        <span>Phone</span>
+                        <strong><?php echo htmlspecialchars($complaint['complainant_phone'] ?: 'N/A'); ?></strong>
+                    </div>
+                    <div>
+                        <span>Address</span>
+                        <strong><?php echo htmlspecialchars($complaint['complainant_address'] ?: 'N/A'); ?></strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="record-section">
+                <h3>Complaint Details</h3>
+                <div class="ticket-block">
+                    <span>Subject</span>
+                    <strong><?php echo htmlspecialchars($complaint['subject']); ?></strong>
+                </div>
+                <div class="ticket-block">
+                    <span>Description</span>
+                    <p><?php echo nl2br(htmlspecialchars($complaint['description'])); ?></p>
+                </div>
+                <div class="ticket-block">
+                    <span>Latest Staff Remarks</span>
+                    <p><?php echo !empty($complaint['staff_comment']) ? nl2br(htmlspecialchars($complaint['staff_comment'])) : 'No staff remarks yet.'; ?></p>
+                </div>
+            </section>
+
+            <section class="record-section">
+                <h3>Assignment</h3>
+                <div class="ticket-grid">
+                    <div>
+                        <span>Assigned Staff</span>
+                        <strong><?php echo $staffName !== '' ? htmlspecialchars($staffName) : 'Not assigned yet'; ?></strong>
+                    </div>
+                    <div>
+                        <span>Staff Email</span>
+                        <strong><?php echo !empty($complaint['staff_email']) ? htmlspecialchars($complaint['staff_email']) : 'N/A'; ?></strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="record-section">
+                <h3>Progress Timeline</h3>
+                <?php if(empty($timeline)): ?>
+                    <p class="record-empty">No timeline updates recorded yet.</p>
+                <?php else: ?>
+                    <div class="record-timeline">
+                        <?php foreach($timeline as $update): ?>
+                            <?php
+                            $actorName = trim(($update['firstname'] ?? '') . ' ' . ($update['lastname'] ?? ''));
+                            $actorLabel = $actorName !== '' ? $actorName : ucfirst($update['actor_role']);
+                            ?>
+                            <div class="record-timeline-item">
+                                <div class="record-timeline-head">
+                                    <strong><?php echo htmlspecialchars($update['status_snapshot']); ?></strong>
+                                    <span><?php echo date('F j, Y g:i A', strtotime($update['created_at'])); ?></span>
+                                </div>
+                                <p class="timeline-item-meta">Updated by <?php echo htmlspecialchars($actorLabel); ?> | Type: <?php echo htmlspecialchars($update['update_type']); ?></p>
+                                <p><?php echo nl2br(htmlspecialchars($update['message'])); ?></p>
+                                <?php if(!empty($update['proof_path'])): ?>
+                                    <p class="record-proof">
+                                        Proof attachment:
+                                        <a href="../<?php echo htmlspecialchars($update['proof_path']); ?>" target="_blank" rel="noopener noreferrer">
+                                            <?php echo htmlspecialchars($update['proof_original_name'] ?: basename($update['proof_path'])); ?>
+                                        </a>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </section>
+
+            <section class="record-section">
+                <h3>Prepared For Filing</h3>
+                <div class="ticket-grid">
+                    <div>
+                        <span>Prepared By</span>
+                        <strong><?php echo htmlspecialchars($preparedByName); ?></strong>
+                    </div>
+                    <div>
+                        <span>Role</span>
+                        <strong><?php echo htmlspecialchars(ucfirst($role)); ?></strong>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="ticket-signature-row">
+                <div>
+                    <span>Prepared By Signature</span>
+                    <strong>&nbsp;</strong>
+                </div>
+                <div>
+                    <span>Reviewed / Approved By</span>
+                    <strong>&nbsp;</strong>
+                </div>
+            </footer>
+        </article>
+    <?php endif; ?>
+</div>
+
+<?php include('../includes/footer.php'); ?>

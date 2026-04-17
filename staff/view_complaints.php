@@ -214,6 +214,7 @@ $result = mysqli_query($conn,
                         <?php echo !empty($row['staff_comment']) ? nl2br(htmlspecialchars($row['staff_comment'])) : '<span class="table-muted">No comment yet</span>'; ?>
                     </td>
                     <td class="action-cell">
+                        <a href="../reports/print_complaint_record.php?id=<?php echo intval($row['complaint_id']); ?>" class="page-action" target="_blank" rel="noopener noreferrer">Print Record</a>
                         <?php if($row['status'] === 'Resolved' && $row['resolution_confirmation'] === 'pending'): ?>
                             <span class="table-muted">Waiting for complainant confirmation</span>
                         <?php elseif($row['status'] === 'Resolved'): ?>

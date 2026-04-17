@@ -216,9 +216,11 @@ while($timelineResult && $timelineRow = mysqli_fetch_assoc($timelineResult)){
 
                     <div class="complaint-action-links">
                         <?php if($row['status'] === 'Pending'): ?>
+                            <a href="print_ticket.php?id=<?php echo $complaintId; ?>" class="page-action">Print Ticket</a>
                             <a href="edit_complaint.php?id=<?php echo $complaintId; ?>" class="page-action secondary-action">Edit Complaint</a>
                             <a href="delete_complaints.php?id=<?php echo $complaintId; ?>" class="page-action secondary-action">Delete Complaint</a>
                         <?php elseif($row['status'] === 'Resolved' && $row['resolution_confirmation'] === 'pending'): ?>
+                            <a href="print_ticket.php?id=<?php echo $complaintId; ?>" class="page-action">Print Ticket</a>
                             <form method="POST" class="complaint-confirmation-form">
                                 <input type="hidden" name="complaint_id" value="<?php echo $complaintId; ?>">
                                 <textarea name="reopen_note" placeholder="If not yet resolved, explain what is still needed."></textarea>
@@ -226,10 +228,13 @@ while($timelineResult && $timelineRow = mysqli_fetch_assoc($timelineResult)){
                                 <button type="submit" name="complaint_action" value="reopen" class="secondary-action">Not Yet Resolved</button>
                             </form>
                         <?php elseif($row['status'] === 'Resolved' && $row['resolution_confirmation'] === 'confirmed'): ?>
+                            <a href="print_ticket.php?id=<?php echo $complaintId; ?>" class="page-action">Print Ticket</a>
                             <span class="table-muted">You already confirmed that this complaint was resolved.</span>
                         <?php elseif($row['status'] === 'In Progress' && $row['resolution_confirmation'] === 'reopened'): ?>
+                            <a href="print_ticket.php?id=<?php echo $complaintId; ?>" class="page-action">Print Ticket</a>
                             <span class="table-muted">You sent this complaint back to staff for more action.</span>
                         <?php else: ?>
+                            <a href="print_ticket.php?id=<?php echo $complaintId; ?>" class="page-action">Print Ticket</a>
                             <span class="table-muted">Editing is disabled once work has started.</span>
                         <?php endif; ?>
                     </div>
