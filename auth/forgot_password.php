@@ -13,7 +13,7 @@ if(isset($_POST['send'])){
     "DELETE FROM password_resets
      WHERE reset_expiry < NOW()");
 
-    // 🔴 CHECK USER
+    //  CHECK USER
     $user = mysqli_fetch_assoc(mysqli_query($conn,
     "SELECT user_id, firstname, lastname, email
      FROM users
@@ -25,20 +25,20 @@ if(isset($_POST['send'])){
         $user_id = $user['user_id'];
         $fullname = trim($user['firstname'] . ' ' . $user['lastname']);
 
-        // 🔴 GENERATE TOKEN
+        //  GENERATE TOKEN
         $token = bin2hex(random_bytes(50));
         $expiry = date("Y-m-d H:i:s", strtotime("+15 minutes"));
 
-        // 🔴 DELETE OLD TOKENS (IMPORTANT 🔥)
+        //  DELETE OLD TOKENS (IMPORTANT )
         mysqli_query($conn,
         "DELETE FROM password_resets WHERE user_id='$user_id'");
 
-        // 🔴 INSERT NEW TOKEN
+        //  INSERT NEW TOKEN
         mysqli_query($conn,
         "INSERT INTO password_resets (user_id, reset_token, reset_expiry)
          VALUES ('$user_id','$token','$expiry')");
 
-        // 🔴 SEND EMAIL
+        //  SEND EMAIL
         sendResetLink($user['email'], $fullname, $token);
     }
 
@@ -46,19 +46,33 @@ if(isset($_POST['send'])){
 }
 ?>
 
-<h2>Forgot Password</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forgot Password</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
 
-<p>Enter the email address registered to your account. If it exists in the system, a reset link will be sent there.</p>
+<div class="container">
+    <h2>Forgot Password</h2>
 
-<?php if($message != ''): ?>
-<p><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
-<?php endif; ?>
+    <p>Enter the email address registered to your account. If it exists in the system, a reset link will be sent there.</p>
 
-<form method="POST">
-    <input type="email" name="email" placeholder="Enter your registered email" required>
-    <button name="send">Send Reset Link</button>
-</form>
+    <?php if($message != ''): ?>
+    <p><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
+    <?php endif; ?>
 
-<div class="link">
-    <a href="login.php">Back to Login</a>
+    <form method="POST">
+        <input type="email" name="email" placeholder="Enter your registered email" required>
+        <button name="send">Send Reset Link</button>
+    </form>
+
+    <div class="link">
+        <a href="login.php">Back to Login</a>
+    </div>
 </div>
+
+</body>
+</html>

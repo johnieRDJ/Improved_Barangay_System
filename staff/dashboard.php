@@ -11,7 +11,7 @@ include('../includes/sidebar.php');
 
 $user_id = $_SESSION['user_id'];
 
-// ✅ LOG: Staff opened dashboard
+//  LOG: Staff opened dashboard
 mysqli_query($conn,
 "INSERT INTO logs (user_id, action)
  VALUES ('$user_id','Opened staff dashboard')");

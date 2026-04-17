@@ -383,24 +383,26 @@ CREATE TABLE `user_auth` (
   `email_verified` tinyint(1) DEFAULT 0,
   `verification_token` varchar(255) DEFAULT NULL,
   `otp_code` varchar(6) DEFAULT NULL,
-  `otp_expiry` datetime DEFAULT NULL
+  `otp_expiry` datetime DEFAULT NULL,
+  `failed_login_attempts` int(11) NOT NULL DEFAULT 0,
+  `require_otp_until` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user_auth`
 --
 
-INSERT INTO `user_auth` (`id`, `user_id`, `email_verified`, `verification_token`, `otp_code`, `otp_expiry`) VALUES
-(1, 1, 1, NULL, NULL, NULL),
-(2, 2, 1, NULL, NULL, NULL),
-(3, 3, 0, NULL, NULL, NULL),
-(4, 4, 1, NULL, NULL, NULL),
-(5, 5, 0, NULL, NULL, NULL),
-(6, 6, 0, NULL, NULL, NULL),
-(7, 7, 0, '416eb5ba3a87fb2469396648494e7064', NULL, NULL),
-(8, 8, 1, NULL, NULL, NULL),
-(9, 9, 1, NULL, NULL, NULL),
-(10, 10, 1, NULL, NULL, NULL);
+INSERT INTO `user_auth` (`id`, `user_id`, `email_verified`, `verification_token`, `otp_code`, `otp_expiry`, `failed_login_attempts`, `require_otp_until`) VALUES
+(1, 1, 1, NULL, NULL, NULL, 0, NULL),
+(2, 2, 1, NULL, NULL, NULL, 0, NULL),
+(3, 3, 0, NULL, NULL, NULL, 0, NULL),
+(4, 4, 1, NULL, NULL, NULL, 0, NULL),
+(5, 5, 0, NULL, NULL, NULL, 0, NULL),
+(6, 6, 0, NULL, NULL, NULL, 0, NULL),
+(7, 7, 0, '416eb5ba3a87fb2469396648494e7064', NULL, NULL, 0, NULL),
+(8, 8, 1, NULL, NULL, NULL, 0, NULL),
+(9, 9, 1, NULL, NULL, NULL, 0, NULL),
+(10, 10, 1, NULL, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -480,14 +482,14 @@ ALTER TABLE `logs`
 --
 ALTER TABLE `password_resets`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD UNIQUE KEY `unique_password_resets_user` (`user_id`);
 
 --
 -- Indexes for table `residency`
 --
 ALTER TABLE `residency`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD UNIQUE KEY `unique_residency_user` (`user_id`);
 
 --
 -- Indexes for table `users`
@@ -501,14 +503,14 @@ ALTER TABLE `users`
 --
 ALTER TABLE `user_auth`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD UNIQUE KEY `unique_user_auth_user` (`user_id`);
 
 --
 -- Indexes for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
   ADD PRIMARY KEY (`profile_id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD UNIQUE KEY `unique_user_profiles_user` (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -590,6 +592,13 @@ ALTER TABLE `appointments`
 ALTER TABLE `complaints`
   ADD CONSTRAINT `complaints_ibfk_1` FOREIGN KEY (`complainant_id`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `complaints_ibfk_2` FOREIGN KEY (`assigned_staff_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `complaint_updates`
+--
+ALTER TABLE `complaint_updates`
+  ADD CONSTRAINT `fk_complaint_updates_complaint` FOREIGN KEY (`complaint_id`) REFERENCES `complaints` (`complaint_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_complaint_updates_actor` FOREIGN KEY (`actor_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `developer_profile`

@@ -14,6 +14,16 @@ if (!$conn) {
 
 mysqli_query($conn, "SET time_zone = '+08:00'");
 
+$failedLoginAttemptsColumn = mysqli_query($conn, "SHOW COLUMNS FROM user_auth LIKE 'failed_login_attempts'");
+if($failedLoginAttemptsColumn instanceof mysqli_result && mysqli_num_rows($failedLoginAttemptsColumn) === 0){
+    mysqli_query($conn, "ALTER TABLE user_auth ADD COLUMN failed_login_attempts INT(11) NOT NULL DEFAULT 0 AFTER otp_expiry");
+}
+
+$requireOtpUntilColumn = mysqli_query($conn, "SHOW COLUMNS FROM user_auth LIKE 'require_otp_until'");
+if($requireOtpUntilColumn instanceof mysqli_result && mysqli_num_rows($requireOtpUntilColumn) === 0){
+    mysqli_query($conn, "ALTER TABLE user_auth ADD COLUMN require_otp_until DATETIME DEFAULT NULL AFTER failed_login_attempts");
+}
+
 $complaintTrackingColumn = mysqli_query($conn, "SHOW COLUMNS FROM complaints LIKE 'tracking_number'");
 if($complaintTrackingColumn instanceof mysqli_result && mysqli_num_rows($complaintTrackingColumn) === 0){
     mysqli_query($conn, "ALTER TABLE complaints ADD COLUMN tracking_number VARCHAR(30) DEFAULT NULL AFTER complaint_id");
@@ -27,6 +37,27 @@ OR tracking_number = ''");
 $complaintTrackingIndex = mysqli_query($conn, "SHOW INDEX FROM complaints WHERE Key_name='tracking_number'");
 if($complaintTrackingIndex instanceof mysqli_result && mysqli_num_rows($complaintTrackingIndex) === 0){
     mysqli_query($conn, "ALTER TABLE complaints ADD UNIQUE KEY tracking_number (tracking_number)");
+}
+
+$uniqueUserTables = [
+    'user_auth' => 'unique_user_auth_user',
+    'user_profiles' => 'unique_user_profiles_user',
+    'residency' => 'unique_residency_user',
+    'password_resets' => 'unique_password_resets_user',
+];
+foreach($uniqueUserTables as $table => $indexName){
+    $uniqueUserIndex = mysqli_query($conn, "SHOW INDEX FROM `$table` WHERE Column_name='user_id' AND Non_unique=0");
+    if($uniqueUserIndex instanceof mysqli_result && mysqli_num_rows($uniqueUserIndex) === 0){
+        $duplicateUserRows = mysqli_query($conn, "SELECT user_id
+        FROM `$table`
+        WHERE user_id IS NOT NULL
+        GROUP BY user_id
+        HAVING COUNT(*) > 1
+        LIMIT 1");
+        if($duplicateUserRows instanceof mysqli_result && mysqli_num_rows($duplicateUserRows) === 0){
+            mysqli_query($conn, "ALTER TABLE `$table` ADD UNIQUE KEY `$indexName` (`user_id`)");
+        }
+    }
 }
 
 $complaintResolutionColumn = mysqli_query($conn, "SHOW COLUMNS FROM complaints LIKE 'resolution_confirmation'");
@@ -87,5 +118,46 @@ WHERE NOT EXISTS (
     WHERE complaint_updates.complaint_id = complaints.complaint_id
 )");
 
-include(__DIR__ . '/../includes/seed_superadmin.php');
+$complaintUpdatesComplaintFk = mysqli_query($conn, "SELECT CONSTRAINT_NAME
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = DATABASE()
+AND TABLE_NAME = 'complaint_updates'
+AND COLUMN_NAME = 'complaint_id'
+AND REFERENCED_TABLE_NAME = 'complaints'
+LIMIT 1");
+if($complaintUpdatesComplaintFk instanceof mysqli_result && mysqli_num_rows($complaintUpdatesComplaintFk) === 0){
+    $complaintUpdatesComplaintOrphans = mysqli_query($conn, "SELECT complaint_updates.update_id
+    FROM complaint_updates
+    LEFT JOIN complaints ON complaints.complaint_id = complaint_updates.complaint_id
+    WHERE complaints.complaint_id IS NULL
+    LIMIT 1");
+    if($complaintUpdatesComplaintOrphans instanceof mysqli_result && mysqli_num_rows($complaintUpdatesComplaintOrphans) === 0){
+        mysqli_query($conn, "ALTER TABLE complaint_updates
+        ADD CONSTRAINT fk_complaint_updates_complaint
+        FOREIGN KEY (complaint_id) REFERENCES complaints (complaint_id)
+        ON DELETE CASCADE");
+    }
+}
+
+$complaintUpdatesActorFk = mysqli_query($conn, "SELECT CONSTRAINT_NAME
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = DATABASE()
+AND TABLE_NAME = 'complaint_updates'
+AND COLUMN_NAME = 'actor_user_id'
+AND REFERENCED_TABLE_NAME = 'users'
+LIMIT 1");
+if($complaintUpdatesActorFk instanceof mysqli_result && mysqli_num_rows($complaintUpdatesActorFk) === 0){
+    $complaintUpdatesActorOrphans = mysqli_query($conn, "SELECT complaint_updates.update_id
+    FROM complaint_updates
+    LEFT JOIN users ON users.user_id = complaint_updates.actor_user_id
+    WHERE complaint_updates.actor_user_id IS NOT NULL
+    AND users.user_id IS NULL
+    LIMIT 1");
+    if($complaintUpdatesActorOrphans instanceof mysqli_result && mysqli_num_rows($complaintUpdatesActorOrphans) === 0){
+        mysqli_query($conn, "ALTER TABLE complaint_updates
+        ADD CONSTRAINT fk_complaint_updates_actor
+        FOREIGN KEY (actor_user_id) REFERENCES users (user_id)
+        ON DELETE SET NULL");
+    }
+}
 ?>

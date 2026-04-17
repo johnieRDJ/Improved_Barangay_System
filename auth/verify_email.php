@@ -37,6 +37,7 @@ if(isset($_GET['token'])){
 <html>
 <head>
     <title><?php echo $page_title; ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>

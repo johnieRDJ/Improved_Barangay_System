@@ -148,7 +148,7 @@ if(isset($_POST['update'])){
 include('../includes/header.php');
 include('../includes/sidebar.php');
 
-// ✅ LOG: Viewed assigned complaints
+//  LOG: Viewed assigned complaints
 mysqli_query($conn,
 "INSERT INTO logs (user_id, action)
  VALUES ('$user_id','Viewed assigned complaints')");
@@ -250,7 +250,7 @@ if(false && isset($_POST['update'])){
          staff_comment='$comment'
      WHERE complaint_id='$id'");
 
-    // ✅ LOG: Detailed action
+    //  LOG: Detailed action
     mysqli_query($conn,
     "INSERT INTO logs (user_id, action)
      VALUES ('$user_id',

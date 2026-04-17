@@ -1,11 +1,11 @@
 <?php
 return [
-    'app_url' => 'https://your-domain.com',
+    'app_url' => 'https://brngycomplaint.argy.host',
     'database' => [
         'host' => 'localhost',
-        'username' => 'your_hostinger_database_user',
-        'password' => 'your_hostinger_database_password',
-        'name' => 'your_hostinger_database_name',
+        'username' => 'u845277124_brngycomplaint',
+        'password' => 'Brngycomplaint123',
+        'name' => 'u845277124_brngycomplaint',
     ],
     'mail' => [
         'host' => 'smtp.gmail.com',

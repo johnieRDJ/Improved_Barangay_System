@@ -12,7 +12,7 @@ include('../includes/sidebar.php');
 
 
 /* ===============================
-   🔴 HANDLE IMAGE UPLOAD
+    HANDLE IMAGE UPLOAD
 ================================ */
 // if(isset($_POST['upload'])){
 //     Developer profile upload is disabled.
@@ -20,7 +20,7 @@ include('../includes/sidebar.php');
 
 
 /* ===============================
-   🔴 HANDLE DELETE IMAGE
+    HANDLE DELETE IMAGE
 ================================ */
 // if(isset($_POST['delete'])){
 //     Developer profile delete is disabled.
@@ -28,7 +28,7 @@ include('../includes/sidebar.php');
 
 
 /* ===============================
-   🔴 FETCH DEVELOPER DATA
+    FETCH DEVELOPER DATA
 ================================ */
 $devQuery = mysqli_query($conn, "
     SELECT
@@ -60,7 +60,7 @@ $dev['image'] = !empty($dev['image']) ? '../uploads/' . basename($dev['image']) 
 
 
 /* ===============================
-   🔴 DASHBOARD COUNTS
+    DASHBOARD COUNTS
 ================================ */
 $total_users = mysqli_fetch_assoc(mysqli_query($conn,
 "SELECT COUNT(*) as total FROM users WHERE role != 'admin'"))['total'];

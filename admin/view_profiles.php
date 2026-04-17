@@ -11,7 +11,7 @@ include('../includes/header.php');
 include('../includes/sidebar.php');
 
 // ============================
-// 🔍 SEARCH & FILTER
+//  SEARCH & FILTER
 // ============================
 $search = $_GET['search'] ?? '';
 $role = $_GET['role'] ?? '';
@@ -60,7 +60,7 @@ $result = mysqli_query($conn, $query);
 
 <h1>User Profiles</h1>
 
-<!-- 🔍 SEARCH + FILTER -->
+<!--  SEARCH + FILTER -->
 <form method="GET" style="margin-bottom:20px;">
 
     <input type="text" name="search" placeholder="Search name/email"
@@ -90,14 +90,14 @@ $result = mysqli_query($conn, $query);
 
 </form>
 
-<!-- 🧾 PROFILE LIST -->
+<!--  PROFILE LIST -->
 <div style="display:flex; flex-wrap:wrap; gap:20px;">
 
 <?php while($row = mysqli_fetch_assoc($result)): ?>
 
 <div style="border:1px solid #ccc; padding:15px; width:300px;">
 
-    <!-- 🖼 PROFILE IMAGE -->
+    <!--  PROFILE IMAGE -->
     <?php if($row['profile_image']): ?>
         <img src="../uploads/profile/<?php echo $row['profile_image']; ?>" width="100%">
     <?php else: ?>

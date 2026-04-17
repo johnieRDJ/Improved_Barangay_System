@@ -4,18 +4,23 @@ session_start();
 
 if(isset($_POST['verify'])){
 
-    // 🔴 Session check
+    //  Session check
     if(!isset($_SESSION['temp_user'])){
         echo "<script>alert('Session expired. Please login again.'); window.location='login.php';</script>";
         exit();
     }
 
     $entered_otp = mysqli_real_escape_string($conn, $_POST['otp']);
-    $user_id = $_SESSION['temp_user'];
+    $user_id = intval($_SESSION['temp_user']);
 
-    // ✅ JOIN users + user_auth
+    //  JOIN users + user_auth
     $query = mysqli_query($conn, 
-        "SELECT users.role, user_auth.otp_code, user_auth.otp_expiry
+        "SELECT
+            users.role,
+            users.account_status,
+            user_auth.email_verified,
+            user_auth.otp_code,
+            user_auth.otp_expiry
          FROM user_auth
          JOIN users ON user_auth.user_id = users.user_id
          WHERE user_auth.user_id='$user_id'");
@@ -24,27 +29,53 @@ if(isset($_POST['verify'])){
 
     if($user){
 
-        // 🔴 Check OTP + expiry
+        //  Check OTP + expiry
         if($entered_otp == $user['otp_code'] && strtotime($user['otp_expiry']) > time()){
 
-            // ✅ Login success
+            if(intval($user['email_verified']) !== 1){
+                unset($_SESSION['temp_user']);
+                mysqli_query($conn,
+                "UPDATE user_auth
+                 SET otp_code=NULL,
+                     otp_expiry=NULL
+                 WHERE user_id='$user_id'");
+
+                echo "<script>alert('Please verify your email first before logging in.'); window.location='login.php';</script>";
+                exit();
+            }
+
+            if($user['role'] != 'superadmin' && $user['account_status'] != 'approved'){
+                unset($_SESSION['temp_user']);
+                mysqli_query($conn,
+                "UPDATE user_auth
+                 SET otp_code=NULL,
+                     otp_expiry=NULL
+                 WHERE user_id='$user_id'");
+
+                echo "<script>alert('Your account is still waiting for admin approval.'); window.location='login.php';</script>";
+                exit();
+            }
+
+            //  Login success
             $_SESSION['user_id'] = $user_id;
             $_SESSION['role'] = $user['role'];
             unset($_SESSION['temp_user']);
 
-            // 🔴 Clear OTP after use
+            //  Clear OTP after use
             mysqli_query($conn,
             "UPDATE user_auth SET 
                 otp_code=NULL,
-                otp_expiry=NULL
+                otp_expiry=NULL,
+                failed_login_attempts=0,
+                require_otp_until=NULL
              WHERE user_id='$user_id'");
 
-            // 🔴 Log
+            //  Log
             mysqli_query($conn, 
             "INSERT INTO logs (user_id, action) 
-             VALUES ('$user_id','Logged in successfully with 2FA')");
+             VALUES ('$user_id','Logged in successfully after OTP verification')");
 
-            // 🔴 Redirect by role
+            //  Redirect by role
             if($user['role'] == 'superadmin'){
                 header("Location: ../superadmin/dashboard.php");
             }
@@ -74,6 +105,7 @@ if(isset($_POST['verify'])){
 <html>
 <head>
     <title>Verify OTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>

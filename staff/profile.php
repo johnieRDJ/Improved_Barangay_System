@@ -13,7 +13,7 @@ include('../includes/sidebar.php');
 $user_id = $_SESSION['user_id'];
 
 /* ============================
-   🔴 ENSURE PROFILE EXISTS
+    ENSURE PROFILE EXISTS
 ============================ */
 $check = mysqli_query($conn,
 "SELECT * FROM user_profiles WHERE user_id='$user_id'");
@@ -24,7 +24,7 @@ if(mysqli_num_rows($check) == 0){
 }
 
 /* ============================
-   🔴 HANDLE PROFILE UPDATE
+    HANDLE PROFILE UPDATE
 ============================ */
 if(isset($_POST['save'])){
 
@@ -45,7 +45,7 @@ if(isset($_POST['save'])){
 }
 
 /* ============================
-   🔴 HANDLE IMAGE UPLOAD
+    HANDLE IMAGE UPLOAD
 ============================ */
 if(isset($_POST['upload'])){
 
@@ -70,7 +70,7 @@ if(isset($_POST['upload'])){
 }
 
 /* ============================
-   🔴 HANDLE DELETE IMAGE
+    HANDLE DELETE IMAGE
 ============================ */
 if(isset($_POST['delete'])){
 
@@ -92,7 +92,7 @@ if(isset($_POST['delete'])){
 }
 
 /* ============================
-   🔴 GET DATA (JOIN USERS + PROFILE)
+    GET DATA (JOIN USERS + PROFILE)
 ============================ */
 $user = mysqli_fetch_assoc(mysqli_query($conn,
 "SELECT u.firstname, u.lastname, u.email,
@@ -106,14 +106,14 @@ $user = mysqli_fetch_assoc(mysqli_query($conn,
 
 <div style="border:1px solid #ccc; padding:15px; width:400px;">
 
-<!-- 🔴 PROFILE IMAGE -->
+<!--  PROFILE IMAGE -->
 <?php if(!empty($user['profile_image'])): ?>
     <img src="../uploads/profile/<?php echo $user['profile_image']; ?>" width="150"><br><br>
 <?php else: ?>
     <p>No Image</p>
 <?php endif; ?>
 
-<!-- 🔴 UPLOAD IMAGE -->
+<!--  UPLOAD IMAGE -->
 <form method="POST" enctype="multipart/form-data">
     <input type="file" name="image" required>
     <button name="upload">Upload Image</button>
@@ -121,18 +121,18 @@ $user = mysqli_fetch_assoc(mysqli_query($conn,
 
 <br>
 
-<!-- 🔴 DELETE IMAGE -->
+<!--  DELETE IMAGE -->
 <form method="POST">
     <button name="delete">Delete Image</button>
 </form>
 
 <hr>
 
-<!-- 🔴 USER INFO -->
+<!--  USER INFO -->
 <p><strong>Name:</strong> <?php echo $user['firstname']." ".$user['lastname']; ?></p>
 <p><strong>Email:</strong> <?php echo $user['email']; ?></p>
 
-<!-- 🔴 EDIT PROFILE -->
+<!--  EDIT PROFILE -->
 <form method="POST">
 
     <input type="text" name="address" placeholder="Address"

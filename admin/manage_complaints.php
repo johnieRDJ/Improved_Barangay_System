@@ -13,7 +13,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'admin'){
 }
 
 // ============================
-// 🔴 HANDLE ASSIGN / REASSIGN
+//  HANDLE ASSIGN / REASSIGN
 // ============================
 if(isset($_POST['assign'])){
 
@@ -88,7 +88,7 @@ include('../includes/header.php');
 include('../includes/sidebar.php');
 
 // ============================
-// 🔴 GET DATA
+//  GET DATA
 // ============================
 $result = mysqli_query($conn,
 "SELECT complaints.*, 
@@ -163,7 +163,7 @@ if($row['staff_fname']){
 
 <td>
 
-<!-- 🔴 ALWAYS ALLOW ASSIGN / REASSIGN -->
+<!--  ALWAYS ALLOW ASSIGN / REASSIGN -->
 <form method="POST">
 
 <input type="hidden" name="complaint_id" value="<?php echo $row['complaint_id']; ?>">

@@ -5,7 +5,7 @@ include('../config/database.php');
 include('../includes/header.php');
 include('../includes/sidebar.php');
 
-// 🔴 ONLY STAFF CAN ACCESS
+//  ONLY STAFF CAN ACCESS
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'staff'){
     header("Location: ../auth/login.php");
     exit();
@@ -13,7 +13,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'staff'){
 
 $user_id = $_SESSION['user_id'];
 
-// 🔴 GET ONLY THIS STAFF'S LOGS
+//  GET ONLY THIS STAFF'S LOGS
 $result = mysqli_query($conn,
 "SELECT logs.*, users.firstname, users.lastname
  FROM logs
