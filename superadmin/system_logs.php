@@ -19,7 +19,8 @@ $logs = db_select_all($conn,
 
 <h2>System Logs</h2>
 
-<table border="1" cellpadding="10" width="100%">
+<div class="table-card">
+<table border="1" cellpadding="10" width="100%" class="responsive-table">
 <tr>
     <th>User</th>
     <th>Action</th>
@@ -45,5 +46,6 @@ echo $row['firstname']
 <?php endforeach; ?>
 
 </table>
+</div>
 
 <?php include('../includes/footer.php'); ?>

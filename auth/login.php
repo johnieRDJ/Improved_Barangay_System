@@ -37,7 +37,7 @@ if(isset($_POST['login'])){
                 user_auth.require_otp_until
          FROM users
          LEFT JOIN user_auth ON users.user_id = user_auth.user_id
-         WHERE users.email=?
+         WHERE BINARY users.email=?
          LIMIT 1",
         's',
         [$email]

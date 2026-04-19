@@ -36,9 +36,10 @@ include('../includes/sidebar.php');
 
 <h2>Manage Admins</h2>
 
-<a href="add_admin.php">➕ Add Admin</a><br><br>
+<a href="add_admin.php" class="page-action">Add Admin</a>
 
-<table border="1" cellpadding="10">
+<div class="table-card">
+<table border="1" cellpadding="10" class="responsive-table">
 <tr>
     <th>Name</th>
     <th>Email</th>
@@ -61,5 +62,6 @@ include('../includes/sidebar.php');
 </tr>
 <?php endforeach; ?>
 </table>
+</div>
 
 <?php include('../includes/footer.php'); ?>

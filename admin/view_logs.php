@@ -19,7 +19,8 @@ $logs = db_select_all($conn,
 
 <h1>System Logs</h1>
 
-<table border="1" cellpadding="10" width="100%">
+<div class="table-card">
+<table border="1" cellpadding="10" width="100%" class="responsive-table">
 <tr>
     <th>User</th>
     <th>Action</th>
@@ -35,5 +36,6 @@ $logs = db_select_all($conn,
 <?php endforeach; ?>
 
 </table>
+</div>
 
 <?php include('../includes/footer.php'); ?>

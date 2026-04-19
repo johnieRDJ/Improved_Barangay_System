@@ -16,7 +16,7 @@ if(isset($_POST['send'])){
     $user = db_select_one($conn,
     "SELECT user_id, firstname, lastname, email
      FROM users
-     WHERE email=?
+     WHERE BINARY email=?
      LIMIT 1",
      's',
      [$email_input]);

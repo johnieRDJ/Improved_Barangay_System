@@ -222,7 +222,7 @@ include('../includes/sidebar.php');
                                 <?php if(!empty($update['proof_path'])): ?>
                                     <p class="record-proof">
                                         Proof attachment:
-                                        <a href="../<?php echo htmlspecialchars($update['proof_path']); ?>" target="_blank" rel="noopener noreferrer">
+                                        <a href="../view_proof.php?update_id=<?php echo intval($update['update_id']); ?>" target="_blank" rel="noopener noreferrer">
                                             <?php echo htmlspecialchars($update['proof_original_name'] ?: basename($update['proof_path'])); ?>
                                         </a>
                                     </p>

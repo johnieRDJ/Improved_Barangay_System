@@ -27,7 +27,8 @@ include('../includes/sidebar.php');
 
 <h2>My Activity Logs</h2>
 
-<table border="1" cellpadding="10" width="100%">
+<div class="table-card">
+<table border="1" cellpadding="10" width="100%" class="responsive-table">
 
 <tr>
     <th>Staff</th>
@@ -56,5 +57,6 @@ include('../includes/sidebar.php');
 <?php endforeach; ?>
 
 </table>
+</div>
 
 <?php include('../includes/footer.php'); ?>

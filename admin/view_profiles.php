@@ -69,7 +69,7 @@ $profiles = db_select_all(
 
 <h1>User Profiles</h1>
 
-<form method="GET" style="margin-bottom:20px;">
+<form method="GET" class="filters-bar">
 
     <input type="text" name="search" placeholder="Search name/email"
     value="<?php echo htmlspecialchars($search); ?>">
@@ -98,11 +98,11 @@ $profiles = db_select_all(
 
 </form>
 
-<div style="display:flex; flex-wrap:wrap; gap:20px;">
+<div class="profile-grid">
 
 <?php foreach($profiles as $row): ?>
 
-<div style="border:1px solid #ccc; padding:15px; width:300px;">
+<div class="profile-panel profile-summary-card">
 
     <?php if($row['profile_image']): ?>
         <img src="../uploads/profile/<?php echo htmlspecialchars($row['profile_image']); ?>" width="100%">

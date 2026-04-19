@@ -184,6 +184,27 @@ $complaints = db_select_all($conn,
  ORDER BY complaints.complaint_id DESC",
  'i',
  [$user_id]);
+
+$reopenReasonRows = db_select_all($conn,
+"SELECT complaint_updates.complaint_id,
+        complaint_updates.message,
+        complaint_updates.created_at
+ FROM complaint_updates
+ INNER JOIN complaints ON complaints.complaint_id = complaint_updates.complaint_id
+ WHERE complaints.assigned_staff_id=?
+ AND complaint_updates.update_type='resolution_reopened'
+ ORDER BY complaint_updates.created_at DESC, complaint_updates.update_id DESC",
+ 'i',
+ [$user_id]);
+
+$latestReopenReasonByComplaint = [];
+foreach($reopenReasonRows as $reopenRow){
+    $reopenedComplaintId = intval($reopenRow['complaint_id']);
+
+    if(!isset($latestReopenReasonByComplaint[$reopenedComplaintId])){
+        $latestReopenReasonByComplaint[$reopenedComplaintId] = $reopenRow;
+    }
+}
 ?>
 
 <div class="page-shell">
@@ -208,21 +229,25 @@ $complaints = db_select_all($conn,
         <table border="1" cellpadding="10" width="100%" class="responsive-table staff-complaints-table">
             <tr>
                 <th>Complainant</th>
-                <th>Tracking No.</th>
+                <th>Tracking</th>
                 <th>Subject</th>
                 <th>Description</th>
                 <th>Status</th>
-                <th>Latest Staff Update</th>
+                <th>Staff Update</th>
                 <th>Action</th>
             </tr>
 
             <?php foreach($complaints as $row): ?>
+                <?php
+                $complaintId = intval($row['complaint_id']);
+                $latestReopenReason = $latestReopenReasonByComplaint[$complaintId] ?? null;
+                ?>
                 <tr>
-                    <td><?php echo htmlspecialchars(trim(($row['complainant_firstname'] ?? '') . ' ' . ($row['complainant_lastname'] ?? ''))); ?></td>
-                    <td><span class="tracking-number compact"><?php echo htmlspecialchars($row['tracking_number']); ?></span></td>
-                    <td><?php echo htmlspecialchars($row['subject']); ?></td>
-                    <td><?php echo htmlspecialchars($row['description']); ?></td>
-                    <td>
+                    <td data-label="Complainant"><?php echo htmlspecialchars(trim(($row['complainant_firstname'] ?? '') . ' ' . ($row['complainant_lastname'] ?? ''))); ?></td>
+                    <td data-label="Tracking"><span class="tracking-number compact"><?php echo htmlspecialchars($row['tracking_number']); ?></span></td>
+                    <td data-label="Subject"><?php echo htmlspecialchars($row['subject']); ?></td>
+                    <td data-label="Description"><?php echo htmlspecialchars($row['description']); ?></td>
+                    <td data-label="Status">
                         <?php if($row['status'] === 'Pending'): ?>
                             <span class="status-badge status-pending">Pending</span>
                         <?php elseif($row['status'] === 'Resolved' && $row['resolution_confirmation'] === 'pending'): ?>
@@ -235,18 +260,25 @@ $complaints = db_select_all($conn,
                             <span class="status-badge status-approved">Resolved</span>
                         <?php endif; ?>
                     </td>
-                    <td>
+                    <td data-label="Staff Update">
                         <?php echo !empty($row['staff_comment']) ? nl2br(htmlspecialchars($row['staff_comment'])) : '<span class="table-muted">No comment yet</span>'; ?>
+                        <?php if($latestReopenReason): ?>
+                            <div class="reopen-reason-box">
+                                <strong>Complainant reason for reopening:</strong>
+                                <p><?php echo nl2br(htmlspecialchars($latestReopenReason['message'])); ?></p>
+                                <span><?php echo date('F j, Y g:i A', strtotime($latestReopenReason['created_at'])); ?></span>
+                            </div>
+                        <?php endif; ?>
                     </td>
-                    <td class="action-cell">
-                        <a href="../reports/print_complaint_record.php?id=<?php echo intval($row['complaint_id']); ?>" class="page-action" target="_blank" rel="noopener noreferrer">Print Record</a>
+                    <td class="action-cell" data-label="Action">
+                        <a href="../reports/print_complaint_record.php?id=<?php echo $complaintId; ?>" class="page-action" target="_blank" rel="noopener noreferrer">Print Record</a>
                         <?php if($row['status'] === 'Resolved' && $row['resolution_confirmation'] === 'pending'): ?>
                             <span class="table-muted">Waiting for complainant confirmation</span>
                         <?php elseif($row['status'] === 'Resolved'): ?>
                             <span class="table-muted">Already resolved</span>
                         <?php else: ?>
                             <form method="POST" enctype="multipart/form-data" class="complaint-update-form">
-                                <input type="hidden" name="complaint_id" value="<?php echo intval($row['complaint_id']); ?>">
+                                <input type="hidden" name="complaint_id" value="<?php echo $complaintId; ?>">
                                 <select name="status" required>
                                     <option value="In Progress">In Progress</option>
                                     <option value="Resolved">Resolved</option>

@@ -71,6 +71,9 @@ if(isset($_POST['update'])){
         exit();
     }
 }
+
+include('../includes/header.php');
+include('../includes/sidebar.php');
 ?>
 
 <h2>Edit User</h2>
@@ -94,3 +97,5 @@ if(isset($_POST['update'])){
 <button name="update">Update</button>
 
 </form>
+
+<?php include('../includes/footer.php'); ?>

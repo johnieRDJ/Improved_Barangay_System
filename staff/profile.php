@@ -126,7 +126,7 @@ $user = db_select_one($conn,
 
 <h2>My Profile</h2>
 
-<div style="border:1px solid #ccc; padding:15px; width:400px;">
+<div class="profile-panel">
 
 <!--  PROFILE IMAGE -->
 <?php if(!empty($user['profile_image'])): ?>

@@ -68,6 +68,9 @@ if(isset($_POST['add'])){
         }
     }
 }
+
+include('../includes/header.php');
+include('../includes/sidebar.php');
 ?>
 
 <h2>Add Staff</h2>
@@ -84,3 +87,5 @@ if(isset($_POST['add'])){
 
 <button name="add">Create Staff</button>
 </form>
+
+<?php include('../includes/footer.php'); ?>
