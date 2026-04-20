@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 12, 2026 at 07:02 PM
+-- Generation Time: Apr 20, 2026 at 04:26 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -282,7 +282,34 @@ INSERT INTO `logs` (`log_id`, `user_id`, `action`, `log_time`) VALUES
 (136, 4, 'Viewed assigned complaints', '2026-04-11 10:34:32'),
 (137, 4, 'Viewed assigned complaints', '2026-04-11 10:38:08'),
 (138, 1, 'Logged in successfully with 2FA', '2026-04-11 10:43:59'),
-(139, 2, 'Logged in successfully with 2FA', '2026-04-11 10:45:33');
+(139, 2, 'Logged in successfully with 2FA', '2026-04-11 10:45:33'),
+(140, 1, 'Logged in successfully', '2026-04-13 01:16:25'),
+(141, 10, 'Logged in successfully', '2026-04-13 01:16:36'),
+(142, 1, 'Logged in successfully after OTP verification', '2026-04-13 01:36:44'),
+(143, 4, 'Reset password via email', '2026-04-13 01:42:31'),
+(144, 4, 'Logged in successfully', '2026-04-13 01:43:32'),
+(145, 4, 'Opened staff dashboard', '2026-04-13 01:43:32'),
+(146, 4, 'Reset password via email', '2026-04-13 01:49:49'),
+(147, 4, 'Logged in successfully', '2026-04-13 01:50:11'),
+(148, 4, 'Opened staff dashboard', '2026-04-13 01:50:11'),
+(149, 2, 'Logged in successfully', '2026-04-17 14:46:33'),
+(150, 9, 'Logged in successfully', '2026-04-17 14:52:07'),
+(151, 2, 'Logged in successfully', '2026-04-17 16:52:40'),
+(152, 4, 'Logged in successfully', '2026-04-17 17:30:08'),
+(153, 4, 'Opened staff dashboard', '2026-04-17 17:30:09'),
+(154, 4, 'Viewed assigned complaints', '2026-04-17 17:30:11'),
+(155, 4, 'Opened staff dashboard', '2026-04-17 17:30:20'),
+(156, 4, 'Logged in successfully', '2026-04-17 17:40:30'),
+(157, 4, 'Opened staff dashboard', '2026-04-17 17:40:31'),
+(158, 4, 'Viewed assigned complaints', '2026-04-17 17:40:32'),
+(159, 4, 'Generated printable complaint record for complaint ID 1', '2026-04-17 17:40:36'),
+(160, 4, 'Viewed assigned complaints', '2026-04-17 17:41:14'),
+(161, 4, 'Generated printable complaint record for complaint ID 3', '2026-04-17 17:41:19'),
+(162, 4, 'Viewed assigned complaints', '2026-04-17 17:41:32'),
+(163, 1, 'Logged in successfully', '2026-04-17 18:15:05'),
+(164, 9, 'Logged in successfully', '2026-04-17 18:15:40'),
+(165, 9, 'Logged in successfully', '2026-04-18 14:01:41'),
+(166, 1, 'Logged in successfully', '2026-04-18 14:02:16');
 
 -- --------------------------------------------------------
 
@@ -304,7 +331,6 @@ CREATE TABLE `password_resets` (
 INSERT INTO `password_resets` (`id`, `user_id`, `reset_token`, `reset_expiry`) VALUES
 (1, 1, NULL, NULL),
 (2, 2, NULL, NULL),
-(4, 4, 'a2ca502c274c3838d5108e93b3d80c7f5448decc04f500d8c0179508fe480a12b4e8e2870b51a98a2bb2818911161f7af1ad', '2026-03-28 11:02:54'),
 (5, 5, NULL, NULL),
 (6, 6, NULL, NULL),
 (7, 7, NULL, NULL),
@@ -361,9 +387,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password`, `role`, `account_status`, `created_at`) VALUES
 (1, 'System', 'Administrator', 'admin@barangay.com', '$2y$10$KAMo90XDjDfAEszw8.6BAOZrFGgmH1vli0LZvHRmcyH.WZuDj2F0m', 'admin', 'approved', '2026-03-06 06:33:01'),
-(2, 'Rj', 'Rj', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'approved', '2026-03-07 06:42:51'),
-(3, 'Venzoy', 'Venzoy', 'rjdy2003@gmail.com', '$2y$10$ErfbD8D.jQBrQ5rDa6gpE./vo3lYrUqnGlUwzZDTNL428IBStCDdG', 'staff', 'approved', '2026-03-07 07:06:48'),
-(4, 'Arjay', 'Arjay', 'johniedy2003@gmail.com', '$2y$10$Mfw08cTjdFm7vINIhCFxIuMEH4ZxndAZEA.hdW.4nYZQzVOKy43Ta', 'staff', 'approved', '2026-03-07 07:28:26'),
+(2, 'Rj', 'Derubio', 'argydy2003@gmail.com', '$2y$10$2SZOth.0mHdCEyfBmXqUquczRAkso6QzhQCyBerMhyPlDdlqxJBEK', 'complainant', 'approved', '2026-03-07 06:42:51'),
+(3, 'Venzoy', 'Teyol', 'rjdy2003@gmail.com', '$2y$10$ErfbD8D.jQBrQ5rDa6gpE./vo3lYrUqnGlUwzZDTNL428IBStCDdG', 'staff', 'approved', '2026-03-07 07:06:48'),
+(4, 'Arjay', 'Rubio', 'johniedy2003@gmail.com', '$2y$10$IiFQVzR35aRKpzhKLJ1HeuWclEmb4F9Cy2v.nV3zN17norl47BuSS', 'staff', 'approved', '2026-03-07 07:28:26'),
 (5, 'Jonah', 'Derubio', 'jonahdyderubio@gmail.com', '$2y$10$VNHK0YldHmZhc0Cl3DaeguLcFP2YRWZ89eozeFXU/d3VWg12s.qey', 'complainant', 'rejected', '2026-03-22 04:57:50'),
 (6, 'Louie Jay', 'Fortuna', 'louiejay.fortuna@nmsc.edu.ph', '$2y$10$etUiq6u0iEJvjAfjqfPnduAgPa63UdNtIpITwMyVE9u4rsb5nZUVy', 'complainant', 'pending', '2026-03-24 12:02:20'),
 (7, 'Neil Martin', 'Molina', 'neilmartin.molina@nmsc.edu.ph', '$2y$10$RwprlWHigUmRjXtwc1LKcu65BMU4EGxEqzI68RZPkO2F9/DmV37yC', 'complainant', 'pending', '2026-03-24 12:53:12'),
@@ -544,13 +570,13 @@ ALTER TABLE `developer_profile`
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=167;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `residency`
@@ -597,8 +623,8 @@ ALTER TABLE `complaints`
 -- Constraints for table `complaint_updates`
 --
 ALTER TABLE `complaint_updates`
-  ADD CONSTRAINT `fk_complaint_updates_complaint` FOREIGN KEY (`complaint_id`) REFERENCES `complaints` (`complaint_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_complaint_updates_actor` FOREIGN KEY (`actor_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_complaint_updates_actor` FOREIGN KEY (`actor_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_complaint_updates_complaint` FOREIGN KEY (`complaint_id`) REFERENCES `complaints` (`complaint_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `developer_profile`
