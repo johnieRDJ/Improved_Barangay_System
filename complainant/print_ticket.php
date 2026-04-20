@@ -330,6 +330,7 @@ include('../includes/sidebar.php');
 .print-ticket-sheet .ticket-note {
     display: flex;
     align-items: center;
+    gap: 4px;
     min-height: 42px;
     margin: 14px 0 28px;
     padding: 10px 12px;
@@ -338,6 +339,10 @@ include('../includes/sidebar.php');
     border-radius: 10px;
     color: #614700;
     line-height: 1.4;
+}
+
+.print-ticket-sheet .ticket-note span {
+    display: inline;
 }
 
 .print-ticket-sheet .ticket-signature-row {
@@ -356,6 +361,55 @@ include('../includes/sidebar.php');
     display: block;
     margin-top: 4px;
     min-height: 18px;
+}
+
+@media screen and (max-width: 640px) {
+    .print-ticket-sheet {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .print-ticket-sheet .ticket-header {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .print-ticket-sheet .ticket-number-box {
+        text-align: left;
+    }
+
+    .print-ticket-sheet .ticket-header h2 {
+        font-size: 22px;
+        line-height: 1.15;
+    }
+
+    .print-ticket-sheet .ticket-grid,
+    .print-ticket-sheet .ticket-signature-row {
+        grid-template-columns: 1fr;
+    }
+
+    .print-ticket-sheet .ticket-note {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 52px;
+        margin: 14px 0 24px;
+        padding: 12px 14px;
+        text-align: left;
+        overflow-wrap: anywhere;
+    }
+
+    .print-ticket-sheet .ticket-note strong {
+        flex: 0 0 auto;
+    }
+
+    .print-ticket-sheet .ticket-note span {
+        flex: 1 1 160px;
+    }
+
+    .print-ticket-sheet .ticket-signature-row {
+        gap: 20px;
+    }
 }
 
 @media print {
@@ -627,7 +681,7 @@ include('../includes/sidebar.php');
 
             <section class="ticket-note">
                 <strong>Important Reminder:</strong>
-                Keep this complaint copy for follow-up. Use the tracking number when checking the status of your complaint.
+                <span>Keep this complaint copy for follow-up. Use the tracking number when checking the status of your complaint.</span>
             </section>
 
             <footer class="ticket-signature-row">
